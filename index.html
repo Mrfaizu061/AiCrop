@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI Crop Advisor — Hackathon Prototype</title>
+  <title>FarmGuru AI — Intelligent Crop Advisory System</title>
 
-  <!-- Tailwind CSS (CDN: OK for prototype/demo) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Chart.js -->
@@ -18,45 +18,204 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <style>
-    /* custom polish */
-    :root { --accent: #059669; --muted: #64748b; }
-    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-    .btn-primary { background: var(--accent); color: white; padding: 10px 12px; border-radius: 10px; font-weight: 600; border: none; }
-    .btn-outline { background: white; border: 1px solid #e6e9ef; padding: 10px 12px; border-radius: 10px; }
-    .input { width:100%; padding:10px 12px; border-radius:10px; border:1px solid #e6e9ed; }
-    .tab-btn { padding:8px 12px; border:none; background:transparent; font-weight:700; color:#334155; cursor:pointer; border-bottom:2px solid transparent; }
-    .tab-btn:hover { color: var(--accent); }
-    .tab-active { color: var(--accent); border-bottom-color: var(--accent); }
-    #previewWrap img { width:100%; height:100%; object-fit:cover; transition: transform .35s ease; }
-    #previewWrap img:hover { transform: scale(1.03); }
-    body.dark { background: linear-gradient(180deg,#000670,#e20ebf,#000559); color: #cbd3cd; }
-    body.dark .bg-white { background: rgba(255,255,255,0.03) !important; }
-    .small-muted { font-size: 12px; color: var(--muted); }
-    .badge { background: #ecfdf5; color: #065f46; padding: 4px 8px; border-radius: 999px; font-weight:600; }
-    
-    /* New styles for additional features */
-    .severity-indicator { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
-    .severity-fill { height: 100%; transition: width 0.5s ease; }
-    .weather-card { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: white; border-radius: 12px; padding: 12px; }
-    .pesticide-card { border-left: 4px solid #10b981; padding-left: 12px; } 
-    .crop-calendar-day { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; cursor: pointer; }
-    .crop-calendar-day.active { background: #10b981; color: white; }
-    .crop-calendar-day.today { border: 2px solid #10b981; }
-    .market-price-trend { height: 40px; width: 100%; position: relative; }
-    .market-price-line { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #10b981; }
-    .floating-chat { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
-    
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-.chat-container {
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --secondary: #F59E0B;
+      --accent: #10B981;
+      --muted: #64748b;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --success: #10B981;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    }
+    
+    .btn-outline {
+      background: white;
+      border: 1px solid #e6e9ef;
+      padding: 10px 16px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #e6e9ed;
+      transition: all 0.2s ease;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+    
+    .tab-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+    
+    .tab-active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    
+    #previewWrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+      border-radius: 12px;
+    }
+    
+    #previewWrap img:hover {
+      transform: scale(1.03);
+    }
+    
+    body.dark {
+      background: linear-gradient(180deg, #0b0384, #b30376);
+      color: #dbeadf;
+    }
+    
+    body.dark .bg-white {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    } 
+    
+    .small-muted {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .badge {
+      background: #ecfdf5;
+      color: #065f46;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    
+    .severity-indicator {
+      height: 8px;
+      border-radius: 4px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    
+    .severity-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+    
+    .weather-card {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      color: white;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    
+    .pesticide-card {
+      border-left: 4px solid var(--accent);
+      padding-left: 16px;
+    }
+    
+    .crop-calendar-day {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .crop-calendar-day.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .crop-calendar-day.today {
+      border: 2px solid var(--accent);
+    }
+    
+    .market-price-trend {
+      height: 40px;
+      width: 100%;
+      position: relative;
+    }
+    
+    .market-price-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+    }
+    
+    /* Chatbot Styles */
+    .chat-container {
       position: fixed;
       bottom: 90px;
       right: 20px;
-      width: 350px;
-      height: 450px;
+      width: 380px;
+      height: 500px;
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
       z-index: 1000;
@@ -65,86 +224,113 @@
     }
     
     .chat-header {
-      background: #059669;
+      background: var(--primary);
       color: white;
-      padding: 16px;
+      padding: 16px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
     }
     
     .chat-messages {
       flex: 1;
-      padding: 16px;
+      padding: 16px 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      background: #f8fafc;
     }
     
     .message {
       max-width: 80%;
-      padding: 10px 14px;
+      padding: 12px 16px;
       border-radius: 18px;
       line-height: 1.4;
+      font-size: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     .bot-message {
-      background: #f1f5f9;
+      background: white;
       align-self: flex-start;
       border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
     
     .user-message {
-      background: #059669;
+      background: var(--primary);
       color: white;
       align-self: flex-end;
       border-bottom-right-radius: 4px;
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
     }
     
     .chat-input-container {
-      padding: 12px 16px;
+      padding: 16px 20px;
       border-top: 1px solid #e5e7eb;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       background: #f9fafb;
     }
     
     .chat-input {
       flex: 1;
-      padding: 10px 14px;
+      padding: 12px 16px;
       border: 1px solid #e5e7eb;
       border-radius: 20px;
       outline: none;
+      font-size: 14px;
     }
     
     .chat-toggle {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
-      background: #059669;
+      background: var(--primary);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+      box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
       cursor: pointer;
       z-index: 1001;
+      transition: all 0.3s ease;
+    }
+    
+    .chat-toggle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(5, 150, 105, 0.4);
     }
     
     .voice-btn {
       background: transparent;
       border: none;
       cursor: pointer;
-      color: #64748b;
-      padding: 4px;
+      color: var(--muted);
+      padding: 6px;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    
+    .voice-btn:hover {
+      background: #f1f5f9;
+      color: var(--primary);
     }
     
     .voice-btn.listening {
-      color: #ef4444;
+      background: #fee2e2;
+      color: var(--danger);
       animation: pulse 1.5s infinite;
     }
     
@@ -154,14 +340,16 @@
       cursor: pointer;
       font-size: 12px;
       font-weight: 600;
-      padding: 4px 8px;
+      padding: 6px 10px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.2);
+      color: white;
+      transition: all 0.2s ease;
     }
     
     .lang-btn.active {
       background: white;
-      color: #059669;
+      color: var(--primary);
     }
     
     @keyframes pulse {
@@ -170,49 +358,124 @@
       100% { transform: scale(1); }
     }
     
-    /* responsive tweaks */
-    @media (max-width: 800px) {
-      .grid-cols-3 { grid-template-columns: 1fr !important; }
+    /* Dashboard Cards */
+    .dashboard-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Progress Animation */
+    @keyframes progress {
+      0% { background-position: 0 0; }
+      100% { background-position: 40px 0; }
+    }
+    
+    .progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      background-color: #e5e7eb;
+      overflow: hidden;
+    }
+    
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      background-size: 40px 100%;
+      animation: progress 1s linear infinite;
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 2000;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    
+    .notification-success {
+      border-left: 4px solid var(--success);
+    }
+    
+    .notification-error {
+      border-left: 4px solid var(--danger);
+    }
+    
+    .notification-warning {
+      border-left: 4px solid var(--warning);
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .grid-cols-3 {
+        grid-template-columns: 1fr 1fr !important;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .grid-cols-3 {
+        grid-template-columns: 1fr !important;
+      }
+      
       .chat-container {
         right: 10px;
         bottom: 80px;
         width: calc(100% - 20px);
-        height: 60%;
+        height: 65%;
       }
-    }
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* responsive tweaks */
-    @media (max-width: 800px) {
-      .grid-cols-3 { grid-template-columns: 1fr !important; }
-      .floating-chat { bottom: 10px; right: 10px; }
+      
+      .chat-toggle {
+        bottom: 10px;
+        right: 10px;
+        width: 56px;
+        height: 56px;
+      }
     }
   </style>
 </head>
 <body class="bg-gradient-to-b from-green-50 to-emerald-100 min-h-screen text-slate-800">
+  <!-- Notification System -->
+  <div id="notification" class="notification hidden">
+    <i id="notificationIcon" class="fas fa-info-circle"></i>
+    <div>
+      <div id="notificationTitle" class="font-semibold"></div>
+      <div id="notificationMessage" class="text-sm"></div>
+    </div>
+  </div>
+
   <div class="max-w-7xl mx-auto p-6">
     <!-- Header -->
-    <header class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
       <div class="flex items-center gap-4">
         <div class="rounded-2xl bg-emerald-700 p-3 text-white shadow-lg">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 21s7-4 10-8 4-8 4-8-6.5 0-11 4S3 21 3 21z" fill="white"></path></svg>
         </div>
         <div>
-          <h1 class="text-2xl md:text-3xl font-bold">AI Crop Advisor</h1>
-          <p class="small-muted">Presentation-ready prototype · On-device behavior simulated</p>
+          <h1 class="text-2xl md:text-3xl font-bold">FarmGuru AI</h1>
+          <p class="small-muted">Intelligent Crop Advisory System · Hackathon Prototype</p>
         </div>
       </div>
 
@@ -222,61 +485,133 @@
           <span id="onlineText" class="text-sm">Online</span>
         </div>
 
-        <select id="langSelect" class="rounded-lg border px-3 py-1">
+        <select id="langSelect" class="rounded-lg border px-3 py-1 bg-white">
           <option value="en">English</option>
           <option value="hi">हिंदी</option>
+          <option value="ta">தமிழ்</option>
+          <option value="te">తెలుగు</option>
         </select>
 
-        <button id="shareBtn" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow">Share</button>
+        <button id="shareBtn" class="px-4 py-2 rounded-lg bg-emerald-600 text-white shadow flex items-center gap-2">
+          <i class="fas fa-share-alt"></i> Share
+        </button>
       </div>
     </header>
 
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="dashboard-card flex items-center gap-4">
+        <div class="p-3 rounded-xl bg-emerald-100 text-emerald-700">
+          <i class="fas fa-leaf text-xl"></i>
+        </div>
+        <div>
+          <div class="text-sm text-slate-500">Detections Today</div>
+          <div class="text-2xl font-bold">12</div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card flex items-center gap-4">
+        <div class="p-3 rounded-xl bg-amber-100 text-amber-700">
+          <i class="fas fa-exclamation-triangle text-xl"></i>
+        </div>
+        <div>
+          <div class="text-sm text-slate-500">Disease Alerts</div>
+          <div class="text-2xl font-bold">3</div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card flex items-center gap-4">
+        <div class="p-3 rounded-xl bg-blue-100 text-blue-700">
+          <i class="fas fa-cloud-sun text-xl"></i>
+        </div>
+        <div>
+          <div class="text-sm text-slate-500">Weather Index</div>
+          <div class="text-2xl font-bold">72%</div>
+        </div>
+      </div>
+      
+      <div class="dashboard-card flex items-center gap-4">
+        <div class="p-3 rounded-xl bg-purple-100 text-purple-700">
+          <i class="fas fa-rupee-sign text-xl"></i>
+        </div>
+        <div>
+          <div class="text-sm text-slate-500">Market Trends</div>
+          <div class="text-2xl font-bold">+5.2%</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Layout -->
-    <div class="grid grid-cols-3 gap-6 grid-cols-3">
+    <div class="grid grid-cols-3 gap-6">
       <!-- LEFT: Capture & Controls -->
-      <div class="col-span-1 space-y-4">
-        <div class="bg-white rounded-2xl p-5 shadow">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="font-semibold" id="leftTitle">Capture / Upload Leaf</h2>
-            <span class="small-muted">On-device demo</span>
+      <div class="col-span-1 space-y-6">
+        <div class="dashboard-card">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold text-lg" id="leftTitle">Crop Health Analysis</h2>
+            <span class="small-muted">AI-powered detection</span>
           </div>
 
-          <div id="previewWrap" class="w-full h-56 bg-gray-50 rounded-xl border border-dashed flex items-center justify-center overflow-hidden mb-3">
-            <span id="previewPlaceholder" class="text-sm text-slate-400">No image selected</span>
+          <div id="previewWrap" class="w-full h-64 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden mb-4 cursor-pointer">
+            <div id="previewPlaceholder" class="text-center p-4">
+              <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
+              <p class="text-sm text-slate-400">Click to upload or drag & drop</p>
+            </div>
           </div>
 
-          <div class="flex gap-2 mb-3">
+          <div class="flex gap-2 mb-4">
             <input id="fileInput" type="file" accept="image/*" class="hidden" />
-            <button id="btnUpload" class="btn-primary flex-1">Upload Image</button>
-            <button id="btnSample" class="btn-outline">Use Sample</button>
+            <button id="btnUpload" class="btn-primary flex-1">
+              <i class="fas fa-upload"></i> Upload Image
+            </button>
+            <button id="btnSample" class="btn-outline">
+              <i class="fas fa-vial"></i> Use Sample
+            </button>
           </div>
 
-          <label class="text-sm font-medium">Crop (optional)</label>
-          <input id="cropInput" class="input mt-1 mb-3" placeholder="e.g., Tomato" />
+          <div class="mb-4">
+            <label class="text-sm font-medium block mb-2">Crop Type</label>
+            <select id="cropInput" class="input">
+              <option value="">Select crop type</option>
+              <option value="Tomato">Tomato</option>
+              <option value="Potato">Potato</option>
+              <option value="Rice">Rice</option>
+              <option value="Wheat">Wheat</option>
+              <option value="Cotton">Cotton</option>
+              <option value="Sugarcane">Sugarcane</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
-          <label class="text-sm font-medium">Confidence threshold: <span id="confLabel">70%</span></label>
-          <input id="confRange" type="range" min="50" max="95" value="70" class="w-full mt-1 mb-3" />
+          <div class="mb-4">
+            <label class="text-sm font-medium block mb-2">Confidence threshold: <span id="confLabel">70%</span></label>
+            <input id="confRange" type="range" min="50" max="95" value="70" class="w-full" />
+          </div>
 
-          <div class="flex items-center justify-between gap-3">
-            <label class="flex items-center gap-2 text-sm">
-              <input id="consent" type="checkbox" checked/>
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input id="consent" type="checkbox" checked class="rounded"/>
               <span id="consentLabel">Allow anonymous learning</span>
             </label>
-            <button id="btnDetect" class="btn-primary">✨ Detect</button>
+            <button id="btnDetect" class="btn-primary">
+              <i class="fas fa-magic"></i> Detect Issues
+            </button>
           </div>
 
           <div id="progressWrap" class="mt-4 hidden">
-            <div class="text-xs text-slate-500 mb-2" id="progressText">Running on-device model…</div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div id="progressBar" class="h-full bg-emerald-500 w-0"></div>
+            <div class="text-xs text-slate-500 mb-2 flex justify-between">
+              <span id="progressText">Running on-device model…</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div id="progressBar" class="progress-bar-fill w-0"></div>
             </div>
           </div>
         </div>
 
-        <!-- NEW: Weather Forecast Widget -->
-        <div class="bg-white rounded-2xl p-4 shadow">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold text-sm">Weather Forecast</h3>
+        <!-- Weather Forecast Widget -->
+        <div class="dashboard-card">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold">Weather Forecast</h3>
             <div class="text-xs text-slate-500" id="weatherLocation">Lucknow, UP</div>
           </div>
           <div id="weatherContainer" class="space-y-3">
@@ -314,9 +649,9 @@
           <div class="mt-3 text-xs text-slate-500" id="weatherAdvice">Good weather for spraying treatments.</div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow space-y-3">
+        <div class="dashboard-card space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-sm">Session Stats</h3>
+            <h3 class="font-semibold">Session Stats</h3>
             <div class="text-xs text-slate-500">Realtime</div>
           </div>
 
@@ -335,34 +670,40 @@
             <h4 class="text-sm font-medium mb-2">History</h4>
             <div id="historyList" class="max-h-36 overflow-auto space-y-2 text-sm"></div>
             <div class="flex gap-2 mt-3">
-              <button id="btnExportCSV" class="btn-outline flex-1">Export CSV</button>
-              <button id="btnClearHistory" class="btn-outline text-red-600">Clear</button>
+              <button id="btnExportCSV" class="btn-outline flex-1">
+                <i class="fas fa-file-csv"></i> Export CSV
+              </button>
+              <button id="btnClearHistory" class="btn-outline text-red-600">
+                <i class="fas fa-trash"></i> Clear
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- MIDDLE: Results & Tabs -->
-      <div class="col-span-1 space-y-4">
-        <div class="bg-white rounded-2xl p-5 shadow">
+      <div class="col-span-1 space-y-6">
+        <div class="dashboard-card">
           <div class="flex items-start justify-between">
             <div>
-              <h3 class="font-semibold" id="resultsHeading">Result & Advisory</h3>
+              <h3 class="font-semibold text-lg" id="resultsHeading">Result & Advisory</h3>
               <p id="resultSub" class="text-sm text-slate-500">Upload & detect to see result</p>
             </div>
             <div id="badges" class="flex flex-col items-end gap-2"></div>
           </div>
 
           <div id="resultCard" class="mt-4 hidden">
-            <div class="flex items-center gap-3">
-              <div id="detectedName" class="font-semibold text-emerald-700"></div>
-              <div id="tagCrop" class="px-2 py-1 rounded-full bg-slate-100 text-sm"></div>
-              <div id="tagConf" class="px-2 py-1 rounded-full bg-slate-50 text-sm"></div>
-              <button id="btnSpeak" class="ml-auto btn-outline">🔊 Speak</button>
+            <div class="flex items-center gap-3 mb-4">
+              <div id="detectedName" class="font-semibold text-emerald-700 text-lg"></div>
+              <div id="tagCrop" class="badge"></div>
+              <div id="tagConf" class="badge bg-blue-100 text-blue-800"></div>
+              <button id="btnSpeak" class="ml-auto btn-outline">
+                <i class="fas fa-volume-up"></i> Speak
+              </button>
             </div>
 
-            <!-- NEW: Disease Severity Indicator -->
-            <div class="mt-4">
+            <!-- Disease Severity Indicator -->
+            <div class="mb-4">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-sm font-medium">Disease Severity</span>
                 <span class="text-xs" id="severityValue">Moderate (45%)</span>
@@ -372,27 +713,33 @@
               </div>
             </div>
 
-            <div class="mt-4">
-              <div class="flex gap-2 border-b pb-2">
-                <button class="tab-btn tab-active" data-tab="advisory">Advisory</button>
-                <button class="tab-btn" data-tab="symptoms">Symptoms</button>
-                <button class="tab-btn" data-tab="stores">Nearby Stores</button>
-                <!-- NEW: Pesticide Calculator Tab -->
-                <button class="tab-btn" data-tab="pesticide">Spray Calculator</button>
+            <div>
+              <div class="flex gap-2 border-b pb-2 overflow-x-auto">
+                <button class="tab-btn tab-active" data-tab="advisory">
+                  <i class="fas fa-lightbulb"></i> Advisory
+                </button>
+                <button class="tab-btn" data-tab="symptoms">
+                  <i class="fas fa-stethoscope"></i> Symptoms
+                </button>
+                <button class="tab-btn" data-tab="stores">
+                  <i class="fas fa-store"></i> Nearby Stores
+                </button>
+                <button class="tab-btn" data-tab="pesticide">
+                  <i class="fas fa-calculator"></i> Spray Calculator
+                </button>
               </div>
 
               <div id="tabContent" class="mt-3">
                 <div id="advisory" class="tab-pane">
-                  <ul id="advList" class="list-disc pl-5 space-y-1"></ul>
+                  <ul id="advList" class="list-disc pl-5 space-y-2"></ul>
                 </div>
                 <div id="symptoms" class="tab-pane hidden">
-                  <ul id="symList" class="list-disc pl-5 space-y-1"></ul>
+                  <ul id="symList" class="list-disc pl-5 space-y-2"></ul>
                 </div>
                 <div id="stores" class="tab-pane hidden">
                   <div id="storesList"></div>
                   <div id="map" class="w-full h-40 rounded-xl mt-3 border"></div>
                 </div>
-                <!-- NEW: Pesticide Calculator Tab Content -->
                 <div id="pesticide" class="tab-pane hidden">
                   <div class="text-sm mb-3">Calculate required pesticide quantity for your field</div>
                   <div class="space-y-3">
@@ -409,7 +756,9 @@
                       <div id="pesticideResult" class="font-bold text-lg mt-1">200g</div>
                       <div class="text-xs text-slate-500 mt-1">For spraying at 200L/acre</div>
                     </div>
-                    <button id="btnCalculatePesticide" class="btn-primary w-full">Calculate</button>
+                    <button id="btnCalculatePesticide" class="btn-primary w-full">
+                      <i class="fas fa-calculator"></i> Calculate
+                    </button>
                   </div>
                 </div>
               </div>
@@ -418,16 +767,20 @@
             <div class="grid grid-cols-1 gap-3 mt-4">
               <textarea id="notes" placeholder="Notes (field, spray dates)" class="input h-24"></textarea>
               <div class="flex gap-2">
-                <button id="btnPdf" class="btn-primary flex-1">📥 Download PDF</button>
-                <button id="btnFlag" class="btn-outline">🚩 Flag wrong detection</button>
+                <button id="btnPdf" class="btn-primary flex-1">
+                  <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button id="btnFlag" class="btn-outline">
+                  <i class="fas fa-flag"></i> Flag wrong detection
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- NEW: Crop Calendar Widget -->
-        <div class="bg-white rounded-2xl p-4 shadow">
-          <div class="flex items-center justify-between mb-3">
+        <!-- Crop Calendar Widget -->
+        <div class="dashboard-card">
+          <div class="flex items-center justify-between mb-4">
             <h4 class="font-medium">Crop Calendar</h4>
             <div class="text-xs text-slate-500" id="currentMonth">August 2023</div>
           </div>
@@ -440,33 +793,43 @@
           <div class="mt-3 text-xs text-slate-500" id="calendarNote">Click on dates to mark important events</div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow">
+        <div class="dashboard-card">
           <div class="flex items-center justify-between">
             <div>
               <h4 class="font-medium">Advanced</h4>
               <p class="text-xs text-slate-500">Experimental features</p>
             </div>
-            <label class="flex items-center gap-2 text-sm">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
               <input id="darkToggle" type="checkbox" />
               <span>Dark UI</span>
             </label>
           </div>
 
           <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
-            <button id="btnShareAdvisory" class="btn-outline">Share Advisory</button>
-            <button id="btnSaveImage" class="btn-outline">Save Crop Image</button>
-            <button id="btnAnalyze" class="btn-primary">Generate Report</button>
-            <button id="btnApiSim" class="btn-outline">Simulate Upload</button>
+            <button id="btnShareAdvisory" class="btn-outline">
+              <i class="fas fa-share"></i> Share Advisory
+            </button>
+            <button id="btnSaveImage" class="btn-outline">
+              <i class="fas fa-save"></i> Save Image
+            </button>
+            <button id="btnAnalyze" class="btn-primary">
+              <i class="fas fa-chart-line"></i> Generate Report
+            </button>
+            <button id="btnApiSim" class="btn-outline">
+              <i class="fas fa-cloud-upload-alt"></i> Simulate Upload
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: Analytics & Pitch -->
-      <div class="col-span-1 space-y-4">
-        <div class="bg-white rounded-2xl p-4 shadow">
-          <h4 class="font-medium">Analytics</h4>
-          <canvas id="diseaseChart" height="180"></canvas>
-          <div class="mt-3 grid grid-cols-2 gap-2">
+         <!-- RIGHT: Analytics & Pitch -->
+      <div class="col-span-1 space-y-6">
+        <div class="dashboard-card">
+          <h4 class="font-medium mb-4">Analytics</h4>
+          <div class="h-48 relative"> <!-- Added wrapper with fixed height -->
+            <canvas id="diseaseChart"></canvas>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3">
             <div class="p-3 rounded-lg bg-emerald-50">
               <div class="text-xs text-slate-600">Avg Confidence</div>
               <div id="avgConf" class="text-lg font-bold">0%</div>
@@ -478,9 +841,9 @@
           </div>
         </div>
 
-        <!-- NEW: Market Prices Widget -->
-        <div class="bg-white rounded-2xl p-4 shadow">
-          <div class="flex items-center justify-between mb-3">
+        <!-- Market Prices Widget -->
+        <div class="dashboard-card">
+          <div class="flex items-center justify-between mb-4">
             <h4 class="font-medium">Market Prices</h4>
             <div class="text-xs text-slate-500">Local mandi</div>
           </div>
@@ -507,22 +870,23 @@
           <div class="text-xs text-slate-500 mt-2">Last updated: Today 9:30 AM</div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow text-sm">
-          <h4 class="font-medium">Pitch Notes</h4>
-          <ul class="list-disc pl-5 mt-2 space-y-1">
+        <div class="dashboard-card text-sm">
+          <h4 class="font-medium mb-3">Pitch Notes</h4>
+          <ul class="list-disc pl-5 space-y-2">
             <li>Tiny on-device models (TFLite) for offline detection</li>
             <li>Explainable outputs: symptoms & targeted advisory</li>
             <li>Opt-in continuous learning & farmer feedback loop</li>
-            <!-- NEW: Added pitch points for new features -->
             <li>Integrated weather advisory & spray calculator</li>
             <li>Crop calendar for planning & market price trends</li>
+            <li>Multi-language support & voice interface</li>
+            <li>Real-time analytics & actionable insights</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- NEW: Floating Chat Assistant -->
-   <div class="chat-container hidden" id="chatbotContainer">
+    <!-- Floating Chat Assistant -->
+    <div class="chat-container hidden" id="chatbotContainer">
       <div class="chat-header">
         <div>
           <div class="font-semibold">AI Kisan Saathi</div>
@@ -531,6 +895,8 @@
         <div class="flex gap-2">
           <button class="lang-btn active" data-lang="en">EN</button>
           <button class="lang-btn" data-lang="hi">HI</button>
+          <button class="lang-btn" data-lang="ta">TA</button>
+          <button class="lang-btn" data-lang="te">TE</button>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
@@ -543,23 +909,25 @@
       </div>
       <div class="chat-input-container">
         <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
-        <button class="voice-btn" id="voiceBtn">🎤</button>
-        <button class="btn-primary" id="sendBtn">Send</button>
+        <button class="voice-btn" id="voiceBtn">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="btn-primary" id="sendBtn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
       </div>
     </div>
 
     <div class="chat-toggle" id="chatToggle">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
-      </svg>
+      <i class="fas fa-comments"></i>
     </div>
 
-    <footer class="text-center mt-6 text-xs text-slate-500">Hackathon Prototype • Present to judges • Built for demo</footer>
+    <footer class="text-center mt-8 text-xs text-slate-500 py-4 border-t">
+      FarmGuru AI • Hackathon Prototype • Built for demonstration purposes
+    </footer>
   </div>
 
-  <!-- Script: All logic -->
-  
- <script>
+  <script>
   (function(){
     // === Mock DB & samples ===
     const DISEASE_DB = [
@@ -568,10 +936,16 @@
         crop: "Tomato",
         name_en: "Tomato Leaf Curl Virus",
         name_hi: "टमाटर लीफ कर्ल वायरस",
+        name_ta: "தக்காளி இலை சுருள் வைரஸ்",
+        name_te: "టమాటా ఆకు కర్ల్ వైరస్",
         symptoms_en: ["Upward curling of leaves", "Stunted growth", "Yellowing between veins"],
         symptoms_hi: ["पत्तों का ऊपर की ओर मुड़ना", "विकास रुकना", "नसों के बीच पीलापन"],
+        symptoms_ta: ["இலைகள் மேல்நோக்கி சுருள்", "வளர்ச்சி குன்றியது", "நரம்புகளுக்கு இடையே மஞ்சள் நிறமாதல்"],
+        symptoms_te: ["ఆకులు పైకి వంకరతో", "పెరుగుదల నిలిచిపోవడం", "సిరల మధ్య పసుపు రంగు"],
         treatment_en: ["Spray Neem oil 3ml/L water (repeat after 7 days)", "Remove heavily infected plants", "Use yellow sticky traps to control whitefly vectors"],
         treatment_hi: ["नीम तेल 3ml/लीटर पानी में स्प्रे करें (7 दिन बाद दोहराएँ)", "बहुत संक्रमित पौधों को हटा दें", "व्हाइटफ्लाई नियंत्रण के लिए पीले स्टिकी ट्रैप लगाएँ"],
+        treatment_ta: ["வேப்ப எண்ணெய் 3ml/லி தண்ணீரில் தெளிக்கவும் (7 நாட்களுக்குப் பிறகு மீண்டும்)", "கடுமையாக பாதிக்கப்பட்ட செடிகளை அகற்றவும்", "வெள்ளை ஈ வெக்டர்களை கட்டுப்படுத்த மஞ்சள் ஒட்டும் பொறிகளைப் பயன்படுத்தவும்"],
+        treatment_te: ["నీమ్ ఆయిల్ 3ml/లీటరు నీటిలో స్ప్రే చేయండి (7 రోజుల తర్వాత పునరావృతం చేయండి)", "అత్యంత సోకిన మొక్కలను తీసివేయండి", "వైట్ ఫ్లై వెక్టర్స్ నియంత్రణకు పసుపు స్టికీ ట్రాప్లను ఉపయోగించండి"],
         severity: 65 // 0-100 scale
       },
       {
@@ -579,10 +953,16 @@
         crop: "Potato",
         name_en: "Early Blight",
         name_hi: "अर्ली ब्लाइट",
+        name_ta: "ஆர்லி பிளைட்",
+        name_te: "అర్లీ బ్లైట్",
         symptoms_en: ["Dark concentric rings on leaves", "Brown lesions"],
         symptoms_hi: ["पत्तों पर गोल-गोल काले छल्ले", "भूरे धब्बे"],
+        symptoms_ta: ["இலைகளில் கருமையான குவிந்த வளையங்கள்", "பழுப்பு காயங்கள்"],
+        symptoms_te: ["ఆకులపై నల్లని కేంద్రిక వలయాలు", "బ్రౌన్ లెషన్స్"],
         treatment_en: ["Spray Mancozeb 2g/L or Chlorothalonil as per label", "Remove debris; follow 3-year crop rotation"],
         treatment_hi: ["मैनकोजेब 2g/लीटर या क्लोरोथालोनिल लेबल अनुसार स्प्रे करें", "कचरा हटाएँ; 3 साल की फसल चक्र अपनाएँ"],
+        treatment_ta: ["லேபலின் படி மான்கோசெப் 2g/லி அல்லது குளோரோத்தலோனில் தெளிக்கவும்", "குப்பைகளை அகற்றவும்; 3-வருட பயிர் சுழற்சியைப் பின்பற்றவும்"],
+        treatment_te: ["లేబల్ ప్రకారం మ్యాన్కోజెబ్ 2g/లీటరు లేదా క్లోరోతలోనిల్ స్ప్రే చేయండి", "చెత్తను తీసివేయండి; 3-సంవత్సరాల పంట భ్రమణాన్ని అనుసరించండి"],
         severity: 45
       },
       {
@@ -590,21 +970,27 @@
         crop: "Rice",
         name_en: "Rice Blast",
         name_hi: "ब्लास्ट रोग",
+        name_ta: "ரைஸ் பிளாஸ்ட்",
+        name_te: "రైస్ బ్లాస్ట్",
         symptoms_en: ["Spindle-shaped lesions on leaves", "Grey centers with brown borders"],
         symptoms_hi: ["पत्तों पर भाले जैसे धब्बे", "ग्रे केंद्र और भूरे किनारे"],
+        symptoms_ta: ["இலைகளில் நூற்றிழை வடிவ காயங்கள்", "பழுப்பு எல்லைகளுடன் சாம்பல் மையங்கள்"],
+        symptoms_te: ["ఆకులపై స్పిండిల్- ఆకారపు ఘాతలు", "బ్రౌన్ సరిహద్దులతో గ్రే సెంటర్లు"],
         treatment_en: ["Maintain field drainage; avoid excess nitrogen", "Spray Tricyclazole 0.6g/L"],
         treatment_hi: ["खेत की निकास व्यवस्था रखें; नाइट्रोजन अधिक न दें", "ट्राइसाइक्लाजोल 0.6g/लीटर स्प्रे करें"],
+        treatment_ta: ["வயல் வடிகால் பராமரிக்க; அதிக நைட்ரஜன் தவிர்க்க", "ட்ரைசைக்ளசோல் 0.6g/லி தெளிக்கவும்"],
+        treatment_te: ["ఫీల్డ్ డ్రైనేజీని నిర్వహించండి; అధిక నైట్రోజన్ నివారించండి", "ట్రైసైక్లాజోల్ 0.6g/లీటరు స్ప్రే చేయండి"],
         severity: 75
       }
     ];
 
     const SAMPLE_IMAGES = {
-      tomato_leaf_curl: "https://images.unsplash.com/photo-1566843971944-0296e7c58b05?auto=format&fit=crop&w=1200&q=80",
-      potato_early_blight: "https://images.unsplash.com/photo-1602540663439-5b9b2a3e6468?auto=format&fit=crop&w=1200&q=80",
-      rice_blast: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80"
+      tomato_leaf_curl: "https://images.unsplash.com/photo-1566843971944-0296e7c58b05?auto=format&fit=crop&w=600&q=80",
+      potato_early_blight: "https://images.unsplash.com/photo-1602540663439-5b9b2a3e6468?auto=format&fit=crop&w=600&q=80",
+      rice_blast: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80"
     };
 
-    // QUESTIONS
+    // Chatbot knowledge base
     const CHATBOT_KB = {
       en: {
         greeting: [
@@ -622,7 +1008,6 @@
           "My pleasure! Don't hesitate to ask if you need more help.",
           "Anytime! That's what I'm here for."
         ],
-        // Predefined questions and answers
         questions: {
           "organic pest control": "For organic pest control, try neem oil spray (5ml per liter), garlic-chili spray, or introducing beneficial insects like ladybugs. Crop rotation also helps prevent pest buildup.",
           "best time to water plants": "The best time to water plants is early morning before 10am. This allows water to reach roots before evaporating and prevents fungal diseases that can occur with evening watering.",
@@ -652,18 +1037,75 @@
           "मेरी खुशी! यदि आपको अधिक帮助 चाहिए तो hesitate न करें।",
           "कभी भी! मैं इसी के लिए यहां हूं।"
         ],
-        // Predefined questions and answers in Hindi
         questions: {
           "जैविक कीट नियंत्रण": "जैविक कीट नियंत्रण के लिए, नीम का तेल स्प्रे (5ml प्रति लीटर), लहसुन-मिर्च का स्प्रे, या लेडीबग जैसे लाभकारी कीड़ों का उपयोग करें। फसल चक्रण भी कीटों के जमाव को रोकने में मदद करता है।",
           "पौधों को पानी देने का सबसे अच्छा समय": "पौधों को पानी देने का सबसे अच्छा समय सुबह 10 बजे से पहले का है। इससे पानी वाष्पित होने से पहले जड़ों तक पहुंच जाता है और शाम को पानी देने से होने वाली फंगल बीमारियों को रोकता है।",
           "टमाटर की उर्वरक अनुसूची": "टमाटर को रोपण के समय (संतुलित 10-10-10), जब पहले फल दिखाई देते हैं (उच्च फास्फोरस), और बढ़ते मौसम के दौरान हर 4-6 सप्ताह में संतुलित उर्वरक की आवश्यकता होती है।",
           "मृदा स्वास्थ्य कैसे सुधारें": "मृदा स्वास्थ्य में सुधार के लिए कम्पोस्ट जैसे कार्बनिक पदार्थ डालें, फसल चक्रण का अभ्यास करें, कवर फसलों का उपयोग करें, जुताई कम करें और उचित pH स्तर बनाए रखें।",
-          "चावल की सामान्य बीमारियां": "चावल की सामान्य बीमारियों में ब्लास्ट (पत्ती और गर्दन), जीवाणुजनित पत्ती झुलसा, शीथ ब्लाइट, ब्राउन स्पॉट और टंगरो वायरस शामिल हैं। प्रतिरोधी किस्मों का उयोग और उचित जल प्रबंधन इन्हें रोकने में मदद कर सकता है।"
+          "चावल की सामान्य बीमारियां": "चावल की सामान्य बीमारियों में ब्लास्ट (पत्ती और गर्दन), जीवाणुजनित पत्ती झुलसा, शीथ ब्लाइट, ब्राउन स्पॉट और टंगरो वायरस शामिल हैं। प्रतिरोधी किस्मों का उपयोग और उचित जल प्रबंधन इन्हें रोकने में मदद कर सकता है।"
         },
         fallback: [
           "मुझे इस बारे में यकीन नहीं है। क्या आप इसे अलग तरीके से पूछने की कोशिश कर सकते हैं?",
           "यह currently मेरी जानकारी से beyond है। फसल रोगों, कीट नियंत्रण या कृषि पद्धतियों के बारे में पूछने का प्रयास करें।",
-          "मैं अभी भी कृषि के उस पहलू के बारे में सीख रहा हूं। कृपया मुझे सामान्य कृषि विटयों के बारे में पूछें।"
+          "मैं अभी भी कृषि के उस पहलू के बारे में सीख रहा हूं। कृपया मुझे सामान्य कृषि विषयों के बारे में पूछें।"
+        ]
+      },
+      ta: {
+        greeting: [
+          "வணக்கம்! நான் உங்கள் AI விவசாய உதவியாளர். இன்று நான் உங்களுக்கு எவ்வாறு உதவலாம்?",
+          "வணக்கம்! உங்கள் விவசாய கேள்விகளுக்கு உதவ நான் இங்கே இருக்கிறேன். நீங்கள் என்ன தெரிந்து கொள்ள விரும்புகிறீர்கள்?",
+          "நமஸ்காரம்! நான் உங்கள் டிஜிட்டல் விவசாய நண்பன். இன்று நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?"
+        ],
+        farewell: [
+          "சென்று வருகிறேன்! மேலும் கேள்விகள் இருந்தால் தயங்காமல் கேளுங்கள்.",
+          "பிறகு சந்திப்போம்! மகிழ்ச்சியான விவசாயம்!",
+          "கவனித்துக் கொள்ளுங்கள்! உங்கள் வயல்கள் வளமுடன் விளங்கட்டும்."
+        ],
+        thanks: [
+          "தயை செய்து! ஒரு விவசாயியை உதவுவதில் மகிழ்ச்சி.",
+          "எனது மகிழ்ச்சி! உங்களுக்கு மேலும் உதவி தேவைப்பட்டால் தயங்காமல் கேளுங்கள்.",
+          "எப்போது வேண்டுமானாலும்! அதற்காகத்தான் நான் இங்கே இருக்கிறேன்."
+        ],
+        questions: {
+          "கரிம பூச்சி கட்டுப்பாடு": "கரிம பூச்சி கட்டுப்பாட்டிற்கு, வேப்ப எண்ணெய் தெளிப்பு (லிட்டருக்கு 5ml), பூண்டு-மிளகாய் தெளிப்பு, அல்லது லேடிபக்குகள் போன்ற பயனுள்ள பூச்சிகளை அறிமுகப்படுத்தவும். பயிர் சுழற்சியும் பூச்சிகளின் குவிப்பை தடுக்க உதவுகிறது.",
+          "தாவரங்களுக்கு நீர் ஊட்டுவதற்கான சிறந்த நேரம்": "தாவரங்களுக்கு நீர் ஊட்டுவதற்கான சிறந்த நேரம் காலை 10 மணிக்கு முன்பு. இது நீர் ஆவியாகும் முன் வேர்களை அடைய அனுமதிக்கிறது மற்றும் மாலை நீர்ப்பாசனத்தால் ஏற்படக்கூடிய பூஞ்சை நோய்களை தடுக்கிறது.",
+          "தக்காளி உர அட்டவணை": "தக்காளிக்கு நடும் நேரத்தில் (சமச்சீர் 10-10-10), முதல் பழங்கள் தோன்றும் போது (அதிக பாஸ்பரஸ்), மற்றும் வளரும் பருவத்த期间每 4-6 வாரங்களுக்கு சமச்சீர் உரம் தேவைப்படுகிறது.",
+          "மண் ஆரோக்கியத்தை எவ்வாறு மேம்படுத்துவது": "கூட்டு போன்ற கரிமப் பொருட்களைச் சேர்ப்பதன் மூலம் மண்ணின் ஆரோக்கியத்தை மேம்படுத்தவும், பயிர் சுழற்சியைப் பயிற்சி செய்யவும், கவர் பயிர்களைப் பயன்படுத்தவும், உழவைக் குறைக்கவும் மற்றும் சரியான pH அளவை பராமரிக்கவும்.",
+          "பொது நெல் நோய்கள்": "பொது நெல் நோய்களில் பிளாஸ்ட் (இலை மற்றும் கழுத்து), பாக்டீரியா இலை ப்ளைட், ஷீத் ப்ளைட், பழுப்பு புள்ளி மற்றும் துங்ரோ வைரஸ் ஆகியவை அடங்கும். எதிர்ப்பு வகைகளைப் பயன்படுத்துவதும் மற்றும் சரியான நீர் மேலாண்மையும் இவற்றைத் தடுக்க உதவும்."
+        },
+        fallback: [
+          "அதைப் பற்றி எனக்குத் தெரியாது. வித்தியாசமான வழியில் கேட்க முயற்சிக்கலாமா?",
+          "அது தற்போது எனது அறிவைத் தாண்டியது. பயிர் நோய்கள், பூச்சி கட்டுப்பாடு அல்லது விவசாய நடைமுறைகள் பற்றி கேட்க முயற்சிக்கவும்.",
+          "நான் இன்னும் விவசாயத்தின் அந்த அம்சத்தைப் பற்றி கற்றுக் கொண்டிருக்கிறேன். தயவு செய்து பொதுவான விவசாய தலைப்புகளைப் பற்றி கேளுங்கள்."
+        ]
+      },
+      te: {
+        greeting: [
+          "నమస్కారం! నేను మీ AI వ్యవసాయ సహాయకుడిని. ఈరోజు నేను మీకు ఎలా సహాయపడగలను?",
+          "హలో! మీ వ్యవసాయ ప్రశ్నలకు సహాయం చేయడానికి నేను ఇక్కడ ఉన్నాను. మీరు ఏమి తెలుసుకోవాలనుకుంటున్నారు?",
+          "నమస్తే! నేను మీ డిజిటల్ రైతు మిత్రుడిని. ఈరోజు నేను మీకు ఎలా సహాయం చేయగలను?"
+        ],
+        farewell: [
+          "వీడ్కోలు! మరిన్ని ప్రశ్నలు ఉంటే తిరిగి వచ్చేందుకు సంకోచించకండి.",
+          "తర్వాత కలుద్దాం! సంతోషకరమైన వ్యవసాయం!",
+          "జాగ్రత్తగా ఉండండి! మీ పొలాలు సమృద్ధిగా ఉండుగాక."
+        ],
+        thanks: [
+          "మీరు స్వాగతం! ఒక తోటి రైతుకు సహాయం చేయడం సంతోషంగా ఉంది.",
+          "నా సంతోషం! మీకు మరింత సహాయం కావాలంటే సంకోచించకండి.",
+          "ఎప్పుడు అయినా! దాని కోసమే నేను ఇక్కడ ఉన్నాను."
+        ],
+        questions: {
+          "సేంద్రీయ కీటక నియంత్రణ": "సేంద్రీయ కీటక నియంత్రణ కోసం, నీమ్ ఆయిల్ స్ప్రే (లీటరుకు 5ml), వెల్లుల్లి-మిరప స్ప్రే, లేదా లేడీబగ్స్ వంటి ప్రయోజనకరమైన కీటకాలను పరిచయం చేయండి. పంట భ్రమణం కీటకాల నిర్మాణాన్ని నిరోధించడంలో కూడా సహాయపడుతుంది.",
+          "మొక్కలకు నీరు పోయడానికి ఉత్తమ సమయం": "మొక్కలకు నీరు పోయడానికి ఉత్తమ సమయం ఉదయం 10 గంటలకు ముందు. ఇది నీరు బాష్పీభవించే ముందు వేర్లను చేరుకోవడానికి అనుమతిస్తుంది మరియు సాయంత్రం నీరు పోయడం వలన కలిగే ఫంగల్ రోగాలను నిరోధిస్తుంది.",
+          "టమాటా ఎరువు షెడ్యూల్": "టమాటాకు నాటే సమయంలో (సమతుల్య 10-10-10), మొదటి పండ్లు కనిపించినప్పుడు (ఎక్కువ భాస్వరం), మరియు పెరుగుతున్న సీజన్期间每 4-6 వారాలకు సమతుల్య ఎరువు అవసరం.",
+          "నేల ఆరోగ్యాన్ని ఎలా మెరుగుపరచాలి": "కంపోస్ట్ వంటి సేంద్రీయ పదార్థాలను జోడించడం ద్వారా నేల ఆరోగ్యాన్ని మెరుగుపరచండి, పంట భ్రమణం అభ్యసించండి, కవర్ పంటలను ఉపయోగించండి, వ్యవసాయం తగ్గించండి మరియు సరైన pH స్థాయిలను నిర్వహించండి.",
+          "సాధారణ బియ్యం రోగాలు": "సాధారణ బియ్యం రోగాలలో బ్లాస్ట్ (ఆకు మరియు మెడ), బాక్టీరియా ఆకు బ్లైట్, షీత్ బ్లైట్, బ్రౌన్ స్పాట్ మరియు టుంగ్రో వైరస్ ఉన్నాయి. నిరోధక రకాలను ఉపయోగించడం మరియు సరైన నీటి నిర్వహణ ఇవి నివారించడంలో సహాయపడతాయి."
+        },
+        fallback: [
+          "దాని గురించి నాకు ఖచ్చితంగా తెలియదు. మీరు దీన్ని వేరే విధంగా అడగడానికి ప్రయత్నించగలరా?",
+          "ఇది ప్రస్తుతం నా జ్ఞానానికి మించినది. పంట రోగాలు, కీటక నియంత్రణ లేదా వ్యవసాయ పద్ధతుల గురించి అడగడానికి ప్రయత్నించండి.",
+          "నేను ఇంకా వ్యవసాయం యొక్క ఆ అంశం గురించి నేర్చుకుంటున్నాను. దయచేసి సాధారణ వ్యవసాయ విషయాల గురించి అడగండి."
         ]
       }
     };
@@ -681,6 +1123,8 @@
     const confLabel = document.getElementById("confLabel");
     const progressWrap = document.getElementById("progressWrap");
     const progressBar = document.getElementById("progressBar");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressText = document.getElementById("progressText");
 
     const resultCard = document.getElementById("resultCard");
     const detectedName = document.getElementById("detectedName");
@@ -738,6 +1182,10 @@
     const weatherHumidity = document.getElementById("weatherHumidity");
     const weatherRain = document.getElementById("weatherRain");
     const weatherAdvice = document.getElementById("weatherAdvice");
+    const notification = document.getElementById("notification");
+    const notificationIcon = document.getElementById("notificationIcon");
+    const notificationTitle = document.getElementById("notificationTitle");
+    const notificationMessage = document.getElementById("notificationMessage");
 
     // state
     let currentImage = null;
@@ -745,656 +1193,1003 @@
     let session = { detections: [], flags: 0 };
     let leafletMap = null;
     let diseaseChart = null;
-
-    // NEW: Chatbot state
     let chatLang = "en";
     let isListening = false;
     let recognition = null;
 
-    // init UI
-    confLabel.textContent = confRange.value + "%";
-    confRange.addEventListener("input", () => confLabel.textContent = confRange.value + "%");
-
-    // NEW: Initialize chatbot functionality
-    function initChatbot() {
-      // Toggle chatbot visibility
-      chatToggle.addEventListener("click", () => {
-        chatbotContainer.classList.toggle("hidden");
-      });
-
-      // Language switch
-      langButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          langButtons.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          chatLang = btn.dataset.lang;
-          chatInput.placeholder = chatLang === "en" ? "Type your message..." : "अपना संदेश टाइप करें...";
-        });
-      });
-
-      // Send message on button click
-      sendBtn.addEventListener("click", sendMessage);
-
-      // Send message on Enter key
-      chatInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          sendMessage();
-        }
-      });
-
-      // Voice input functionality
-      if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = () => {
-          isListening = true;
-          voiceBtn.classList.add("listening");
-          chatInput.placeholder = chatLang === "en" ? "Listening..." : "सुन रहा हूं...";
-        };
-
-        recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          chatInput.value = transcript;
-          isListening = false;
-          voiceBtn.classList.remove("listening");
-          chatInput.placeholder = chatLang === "en" ? "Type your message..." : "अपना संदेश टाइप करें...";
-        };
-
-        recognition.onerror = (event) => {
-          console.error("Speech recognition error", event.error);
-          isListening = false;
-          voiceBtn.classList.remove("listening");
-          chatInput.placeholder = chatLang === "en" ? "Type your message..." : "अपना संदेश टाइप करें...";
-          addMessage("Error with voice input. Please try again.", "bot");
-        };
-
-        recognition.onend = () => {
-          isListening = false;
-          voiceBtn.classList.remove("listening");
-          chatInput.placeholder = chatLang === "en" ? "Type your message..." : "अपना संदेश टाइप करें...";
-        };
-
-        voiceBtn.addEventListener("click", () => {
-          if (isListening) {
-            recognition.stop();
-            return;
-          }
-          
-          if (chatLang === "en") {
-            recognition.lang = "en-IN";
-          } else {
-            recognition.lang = "hi-IN";
-          }
-          
-          try {
-            recognition.start();
-          } catch (error) {
-            console.error("Speech recognition start failed:", error);
-            addMessage("Voice input not supported in this browser.", "bot");
-          }
-        });
-      } else {
-        voiceBtn.style.display = "none";
-      }
-    }
-
-    // NEW: Add message to chat
-    function addMessage(text, sender) {
-      const messageDiv = document.createElement("div");
-      messageDiv.classList.add("message");
-      messageDiv.classList.add(sender === "user" ? "user-message" : "bot-message");
-      messageDiv.textContent = text;
-      chatMessages.appendChild(messageDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      
-      // Speak bot messages
-      if (sender === "bot") {
-        speak(text, chatLang === "en" ? "en-IN" : "hi-IN");
-      }
-    }
-
-    // NEW: Send user message and get response
-    function sendMessage() {
-      const message = chatInput.value.trim();
-      if (!message) return;
-      
-      // Add user message to chat
-      addMessage(message, "user");
-      chatInput.value = "";
-      
-      // Process message and get response
-      setTimeout(() => {
-        const response = getBotResponse(message);
-        addMessage(response, "bot");
-      }, 500);
-    }
-
-    // NEW: Generate bot response based on input
-    function getBotResponse(input) {
-      const lowerInput = input.toLowerCase();
-      const kb = CHATBOT_KB[chatLang];
-      
-      // Check for greetings
-      if (lowerInput.includes("hello") || lowerInput.includes("hi") || 
-          lowerInput.includes("नमस्ते") || lowerInput.includes("हैलो")) {
-        return kb.greeting[Math.floor(Math.random() * kb.greeting.length)];
-      }
-      
-      // Check for thanks
-      if (lowerInput.includes("thank") || lowerInput.includes("धन्यवाद")) {
-        return kb.thanks[Math.floor(Math.random() * kb.thanks.length)];
-      }
-      
-      // Check for goodbye
-      if (lowerInput.includes("bye") || lowerInput.includes("goodbye") || 
-          lowerInput.includes("अलविदा")) {
-        return kb.farewell[Math.floor(Math.random() * kb.farewell.length)];
-      }
-      
-      // Check predefined questions
-      for (const [question, answer] of Object.entries(kb.questions)) {
-        if (lowerInput.includes(question.toLowerCase())) {
-          return answer;
-        }
-      }
-      
-      // Check for crop disease queries
-      for (const disease of DISEASE_DB) {
-        const diseaseName = chatLang === "en" ? disease.name_en.toLowerCase() : disease.name_hi.toLowerCase();
-        if (lowerInput.includes(diseaseName)) {
-          const symptoms = chatLang === "en" ? disease.symptoms_en : disease.symptoms_hi;
-          const treatment = chatLang === "en" ? disease.treatment_en : disease.treatment_hi;
-          
-          return `${chatLang === "en" ? "Information about" : "जानकारी"} ${chatLang === "en" ? disease.name_en : disease.name_hi}:\n\n${chatLang === "en" ? "Symptoms" : "लक्षण"}:\n- ${symptoms.join("\n- ")}\n\n${chatLang === "en" ? "Treatment" : "उपचार"}:\n- ${treatment.join("\n- ")}`;
-        }
-      }
-      
-      // Fallback response
-      return kb.fallback[Math.floor(Math.random() * kb.fallback.length)];
-    }
-
-    // online status
-    function updateOnline() {
-      const on = navigator.onLine;
-      onlineDot.style.backgroundColor = on ? "#10b981" : "#ef4444";
-      onlineText.textContent = on ? (langSelect.value === "en" ? "Online" : "ऑनलाइन") : (langSelect.value === "en" ? "Offline" : "ऑफ़लाइन");
-    }
-    window.addEventListener("online", updateOnline);
-    window.addEventListener("offline", updateOnline);
-    updateOnline();
-
-    // file upload & preview
-    btnUpload.addEventListener("click", () => fileInput.click());
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        currentImage = reader.result;
-        previewWrap.innerHTML = `<img src="${reader.result}" alt="leaf">`;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // sample
-    btnSample.addEventListener("click", () => {
-      const keys = Object.keys(SAMPLE_IMAGES);
-      const k = keys[Math.floor(Math.random() * keys.length)];
-      currentImage = SAMPLE_IMAGES[k];
-      previewWrap.innerHTML = `<img src="${currentImage}" alt="sample">`;
-      const found = DISEASE_DB.find(d => d.id === k);
-      if (found) cropInput.value = found.crop;
-    });
-
-    // detection simulation
-    btnDetect.addEventListener("click", () => {
-      if (!currentImage) {
-        alert(langSelect.value === "en" ? "Please upload or choose a sample image." : "कृपया इमेज अपलोड या नमूना चुनें।");
-        return;
-      }
-
-      // reset
-      resultCard.classList.add("hidden");
-      progressWrap.classList.remove("hidden");
-      progressBar.style.width = "6%";
-      let p = 6;
-      const iv = setInterval(() => {
-        p = Math.min(95, p + 6 + Math.random() * 6);
-        progressBar.style.width = p + "%";
-      }, 200);
-
-      // choose candidate pool
-      const pool = cropInput.value ? DISEASE_DB.filter(d => d.crop.toLowerCase().includes(cropInput.value.toLowerCase())) : DISEASE_DB;
-      const chosen = pool[Math.floor(Math.random() * pool.length)];
-
-      setTimeout(() => {
-        clearInterval(iv);
-        progressBar.style.width = "100%";
-        const base = parseInt(confRange.value || "70", 10);
-        const conf = Math.min(98, Math.max(50, base + Math.floor(Math.random() * 15)));
-        currentResult = { ...chosen, confidence: conf };
-        session.detections.push({ id: chosen.id, crop: chosen.crop, conf: conf, time: new Date().toISOString() });
-        saveSession();
-        showResult(currentResult);
-        const spoken = (langSelect.value === "en") ? chosen.name_en : chosen.name_hi;
-        speak((langSelect.value === "en" ? "Detected: " : "पहचाना गया: ") + spoken, langSelect.value === "en" ? "en-IN" : "hi-IN");
-        setTimeout(() => { progressWrap.classList.add("hidden"); progressBar.style.width = "0%"; }, 600);
-      }, 1600 + Math.random() * 900);
-    });
-
-    // show result
-    function showResult(res) {
-      if (!res) return;
-      document.getElementById("resultSub").textContent = langSelect.value === "en" ? "Result available" : "परिणाम उपलब्ध";
-      detectedName.textContent = (langSelect.value === "en") ? res.name_en : res.name_hi;
-      tagCrop.textContent = (langSelect.value === "en" ? "Crop: " : "फसल: ") + res.crop;
-      tagConf.textContent = (langSelect.value === "en" ? "Confidence: " : "विश्वास: ") + res.confidence + "%";
-
-      const adv = (langSelect.value === "en") ? res.treatment_en : res.treatment_hi;
-      const sym = (langSelect.value === "en") ? res.symptoms_en : res.symptoms_hi;
-
-      advList.innerHTML = adv.map(a => `<li>${a}</li>`).join("");
-      symList.innerHTML = sym.map(s => `<li>${s}</li>`).join("");
-
-      // NEW: Update disease severity indicator
-      const severity = res.severity || 50;
-      let severityText = "";
-      let severityColor = "";
-      
-      if (severity < 30) {
-        severityText = langSelect.value === "en" ? "Mild" : "हल्का";
-        severityColor = "#10b981"; // green
-      } else if (severity < 70) {
-        severityText = langSelect.value === "en" ? "Moderate" : "मध्यम";
-        severityColor = "#f59e0b"; // amber
-      } else {
-        severityText = langSelect.value === "en" ? "Severe" : "गंभीर";
-        severityColor = "#ef4444"; // red
-      }
-      
-      severityFill.style.width = `${severity}%`;
-      severityFill.style.backgroundColor = severityColor;
-      severityValue.textContent = `${severityText} (${severity}%)`;
-      
-      // NEW: Set recommended dosage based on disease
-      if (res.id === "tomato_leaf_curl") {
-        recommendedDosage.value = "3ml/L";
-      } else if (res.id === "potato_early_blight") {
-        recommendedDosage.value = "2g/L";
-      } else if (res.id === "rice_blast") {
-        recommendedDosage.value = "0.6g/L";
-      }
-      
-      // Calculate pesticide immediately
-      calculatePesticide();
-
-      // nearby stores (demo)
-      const stores = [
-        { name: "GreenGrow Agri Store", lat: 26.8467, lon: 80.9462, dist: "1.8 km" },
-        { name: "Kisan Seva Kendra", lat: 26.8480, lon: 80.9473, dist: "2.3 km" },
-        { name: "AgriCare Pesticides", lat: 26.8440, lon: 80.9500, dist: "3.1 km" }
-      ];
-      storesList.innerHTML = stores.map(s => `<div class="p-2 rounded-lg bg-slate-50 mb-2"><div class="font-medium">${s.name}</div><div class="text-xs text-slate-500">${s.dist}</div></div>`).join("");
-
-      // map (Leaflet)
-      setTimeout(() => {
-        if (!mapEl) return;
-        try {
-          mapEl.innerHTML = "";
-          leafletMap = L.map(mapEl).setView([stores[0].lat, stores[0].lon], 13);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(leafletMap);
-          stores.forEach(s => L.marker([s.lat, s.lon]).addTo(leafletMap).bindPopup(`<strong>${s.name}</strong><br>${s.dist}`));
-        } catch(e) {
-          console.warn("Leaflet map error", e);
-        }
-      }, 80);
-
-      resultCard.classList.remove("hidden");
-      updateStats();
-      renderHistory();
-      updateAnalytics();
-    }
-
-    // TTS function
-    function speak(text, lang = "en-IN") {
-      try {
-        if (!("speechSynthesis" in window)) return;
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = lang;
-        window.speechSynthesis.speak(u);
-      } catch (e) {
-        console.warn("TTS failed", e);
-      }
-    }
-    btnSpeak.addEventListener("click", () => {
-      if (!currentResult) return;
-      const adv = (langSelect.value === "en") ? currentResult.treatment_en.join(", ") : currentResult.treatment_hi.join(", ");
-      const name = (langSelect.value === "en") ? currentResult.name_en : currentResult.name_hi;
-      speak(`${name}. ${adv}`, langSelect.value === "en" ? "en-IN" : "hi-IN");
-    });
-
-    // tabs
-    document.querySelectorAll(".tab-btn").forEach(b => {
-      b.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(x => x.classList.remove("tab-active"));
-        b.classList.add("tab-active");
-        document.querySelectorAll(".tab-pane").forEach(p => p.classList.add("hidden"));
-        const id = b.dataset.tab;
-        document.getElementById(id).classList.remove("hidden");
-      });
-    });
-
-    // NEW: Pesticide calculator function
-    function calculatePesticide() {
-      if (!fieldArea.value || !recommendedDosage.value) return;
-      
-      const area = parseFloat(fieldArea.value);
-      const dosageText = recommendedDosage.value;
-      
-      // Extract numeric value and unit
-      const dosageValue = parseFloat(dosageText);
-      const unit = dosageText.replace(/[0-9.]/g, '');
-      
-      // Standard calculation: 200L water per acre
-      const waterPerAcre = 200; // liters
-      const totalWater = area * waterPerAcre;
-      const totalPesticide = totalWater * dosageValue;
-      
-      // Format result based on unit
-      let resultText = "";
-      if (unit.includes('g')) {
-        resultText = `${totalPesticide.toFixed(0)}g`;
-      } else if (unit.includes('ml')) {
-        resultText = `${totalPesticide.toFixed(0)}ml`;
-      }
-      
-      pesticideResult.textContent = resultText;
-    }
-    
-    btnCalculatePesticide.addEventListener("click", calculatePesticide);
-    fieldArea.addEventListener("input", calculatePesticide);
-
-    // NEW: Generate crop calendar
-    function generateCalendar() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
-      
-      // Set current month text
-      const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-      currentMonth.textContent = `${monthNames[month]} ${year}`;
-      
-      // Get first day of month and number of days
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      
-      // Clear previous calendar
-      cropCalendar.innerHTML = '';
-      
-      // Add empty cells for days before first day of month
-      for (let i = 0; i < firstDay; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'crop-calendar-day';
-        cropCalendar.appendChild(emptyDay);
-      }
-      
-      // Add days of the month
-      const today = now.getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'crop-calendar-day';
-        dayElement.textContent = day;
-        
-        // Mark today
-        if (day === today) {
-          dayElement.classList.add('today');
-        }
-        
-        // Randomly mark some days as active (for demo)
-        if (Math.random() > 0.7 && day >= today) {
-          dayElement.classList.add('active');
-          dayElement.title = 'Spray day';
-        }
-        
-        dayElement.addEventListener('click', function() {
-          this.classList.toggle('active');
-        });
-        
-        cropCalendar.appendChild(dayElement);
-      }
-    }
-
-    // NEW: Simulate weather data
-    function updateWeather() {
-      // In a real app, this would fetch from a weather API
-      const temperatures = [28, 29, 30, 31, 32, 33, 34];
-      const conditions = ["Sunny", "Partly Cloudy", "Cloudy", "Light Rain"];
-      const humidities = [45, 50, 55, 60, 65, 70, 75];
-      const rainChances = [0, 10, 20, 30, 40];
-      
-      const randomTemp = temperatures[Math.floor(Math.random() * temperatures.length)];
-      const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
-      const randomHumidity = humidities[Math.floor(Math.random() * humidities.length)];
-      const randomRain = rainChances[Math.floor(Math.random() * rainChances.length)];
-      
-      currentTemp.textContent = `${randomTemp}°C`;
-      weatherCondition.textContent = randomCondition;
-      weatherHumidity.textContent = `${randomHumidity}%`;
-      weatherRain.textContent = `${randomRain}%`;
-      
-      // Weather advice based on conditions
-      if (randomRain > 30) {
-        weatherAdvice.textContent = langSelect.value === "en" 
-          ? "Avoid spraying today due to rain forecast." 
-          : "बारिश के पूर्वानुमान के कारण आज छिड़काव से बचें।";
-      } else if (randomCondition === "Sunny") {
-        weatherAdvice.textContent = langSelect.value === "en" 
-          ? "Good day for spraying. Do it in early morning." 
-          : "छिड़काव के लिए अच्छा दिन। इसे सुबह जल्दी करें।";
-      } else {
-        weatherAdvice.textContent = langSelect.value === "en" 
-          ? "Weather conditions are suitable for farming activities." 
-          : "मौसम की स्थितियाँ कृषि गतिविधियों के लिए उपयुक्त हैं।";
-      }
-    }
-
-    // session storage
-    function saveSession() { sessionStorage.setItem("ai_crop_session", JSON.stringify(session)); }
-    function loadSession() {
-      const raw = sessionStorage.getItem("ai_crop_session");
-      if (raw) session = JSON.parse(raw);
-      renderHistory(); updateStats(); updateAnalytics();
-    }
-    function renderHistory() {
-      if (!historyList) return;
-      if (!session.detections.length) {
-        historyList.innerHTML = `<div class="text-xs text-slate-400">No history</div>`;
-        return;
-      }
-      historyList.innerHTML = session.detections.slice().reverse().map(d => {
-        const t = new Date(d.time);
-        return `<div class="p-2 rounded-lg bg-gray-50"><div class="text-sm font-medium">${d.crop}</div><div class="text-xs text-slate-500">${t.toLocaleString()} • ${d.conf}%</div></div>`;
-      }).join("");
-    }
-    function updateStats() {
-      statDetections.textContent = session.detections.length;
-      statFlags.textContent = session.flags || 0;
-    }
-
-    // analytics chart
-    function updateAnalytics() {
-      const counts = {};
-      let sumConf = 0;
-      const unique = new Set();
-      session.detections.forEach(d => {
-        counts[d.id] = (counts[d.id] || 0) + 1;
-        sumConf += d.conf;
-        unique.add(d.crop);
-      });
-      const labels = Object.keys(counts).map(id => {
-        const db = DISEASE_DB.find(x => x.id === id);
-        return db ? ((langSelect.value === "en") ? db.name_en : db.name_hi) : id;
-      });
-      const data = Object.values(counts);
-      
-      // Create or update chart
-      if (!diseaseChart) {
-        diseaseChart = new Chart(diseaseChartCtx, {
-          type: 'doughnut',
-          data: { 
-            labels: labels, 
-            datasets: [{
-              data: data, 
-              backgroundColor: ['#10b981','#f97316','#60a5fa','#f43f5e']
-            }] 
-          },
-          options: { 
-            plugins: { 
-              legend: { 
-                position: 'bottom' 
-              } 
-            } 
-          }
-        });
-      } else {
-        diseaseChart.data.labels = labels;
-        diseaseChart.data.datasets[0].data = data;
-        diseaseChart.update();
-      }
-      
-      avgConf.textContent = session.detections.length ? Math.round(sumConf / session.detections.length) + "%" : "0%";
-      uniqueCrops.textContent = unique.size;
-    }
-
-    // export CSV
-    btnExportCSV.addEventListener("click", () => {
-      if (!session.detections.length) { alert(langSelect.value === "en" ? "No data to export." : "निर्यात के लिए कोई डेटा नहीं।"); return; }
-      const hdr = ["time","id","crop","confidence"];
-      const rows = session.detections.map(d => [d.time,d.id,d.crop,d.conf].join(",")).join("\n");
-      const csv = hdr.join(",") + "\n" + rows;
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a"); a.href = url; a.download = "detections.csv"; a.click(); URL.revokeObjectURL(url);
-    });
-
-    // clear history
-    btnClearHistory.addEventListener("click", () => {
-      if (!confirm(langSelect.value === "en" ? "Clear history?" : "क्या आप इतिहास साफ़ करना चाहते हैं?")) return;
-      session = { detections: [], flags: 0 };
-      saveSession(); renderHistory(); updateStats(); updateAnalytics();
-    });
-
-    // PDF export
-    btnPdf.addEventListener("click", () => {
-      if (!currentResult) { alert(langSelect.value === "en" ? "No advisory to download." : "डाउनलोड करने के लिए कोई सलाह उपलब्ध नहीं है।"); return; }
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const title = (langSelect.value==='en') ? currentResult.name_en : currentResult.name_hi;
-        doc.setFontSize(16);
-        doc.text(title, 18, 20);
-        doc.setFontSize(11);
-        doc.text((langSelect.value==='en'?'Crop: ':'फसल: ')+currentResult.crop, 18, 30);
-        doc.text((langSelect.value==='en'?'Confidence: ':'विश्वास: ')+currentResult.confidence+'%', 18, 36);
-        doc.text((langSelect.value==='en'?'Symptoms:':'लक्षण:'), 18, 46);
-        const sy = (langSelect.value==='en') ? currentResult.symptoms_en : currentResult.symptoms_hi;
-        sy.forEach((s,i)=> doc.text(`- ${s}`, 22, 54 + i*7));
-        const adv = (langSelect.value==='en') ? currentResult.treatment_en : currentResult.treatment_hi;
-        const start = 54 + sy.length*7 + 8;
-        doc.text((langSelect.value==='en'?'Treatment / Advisory:':'उपचार / सलाह:'), 18, start);
-        adv.forEach((a,i)=> doc.text(`- ${a}`, 22, start + 8 + i*7));
-        doc.save((title.replace(/\s+/g,'_') + "_advisory.pdf"));
-      } catch (e) {
-        console.warn("PDF error", e);
-        alert("PDF export failed.");
-      }
-    });
-
-    // flag detection
-    btnFlag.addEventListener("click", () => {
-      session.flags = (session.flags || 0) + 1;
-      saveSession(); updateStats();
-      alert(langSelect.value === "en" ? "Thank you — feedback submitted." : "धन्यवाद — फीडबैक मिला।");
-    });
-
-    // share page / advisory
-    btnShare.addEventListener("click", async () => {
-      const shareData = { title: "AI Crop Advisor (Prototype)", text: "Check out this AI Crop Advisor prototype." };
-      if (navigator.share) {
-        try { await navigator.share(shareData); } catch (e) { console.warn(e); }
-      } else {
-        prompt("Share text (copy):", `${shareData.title}\n\n${shareData.text}`);
-      }
-    });
-
-    // save image locally
-    btnSaveImage && btnSaveImage.addEventListener("click", () => {
-      if (!currentImage) { alert(langSelect.value==='en' ? "No image to save." : "सहेजने के लिए कोई इमेज नहीं।"); return; }
-      const a = document.createElement("a"); a.href = currentImage; a.download = "crop_image.png"; document.body.appendChild(a); a.click(); a.remove();
-    });
-
-    // analyze (simulated)
-    btnAnalyze && btnAnalyze.addEventListener("click", () => {
-      alert(langSelect.value==='en' ? "Generating report... (simulated)" : "रिपोर्ट जनरेट की जा रही है... (नमूना)");
-    });
-
-    // simulate API upload
-    btnApiSim && btnApiSim.addEventListener("click", () => {
-      alert(langSelect.value==='en' ? "Uploading anonymized features to cloud (simulated)." : "क्लाउड पर अनाम फीचर भेजा जा रहा है (नमूना)।");
-    });
-
-    // share advisory text
-    btnShareAdvisory && btnShareAdvisory.addEventListener("click", () => {
-      if (!currentResult) { alert(langSelect.value === "en" ? "No advisory to share." : "साझा करने के लिए कोई सलाह नहीं।"); return; }
-      const adv = (langSelect.value === "en") ? currentResult.treatment_en.join("\n") : currentResult.treatment_hi.join("\n");
-      if (navigator.share) { navigator.share({ title: "Crop Advisory", text: adv }).catch(()=>{}); } else { prompt("Copy advisory:", adv); }
-    });
-
-    // dark toggle
-    btnDark && btnDark.addEventListener("change", (e) => {
-      document.body.classList.toggle("dark", e.target.checked);
-    });
-
-    // language switch UI text
-    langSelect.addEventListener("change", () => {
-      document.getElementById("consentLabel").textContent = langSelect.value === "en" ? "Allow anonymous learning" : "इस इमेज से गुमनाम सीखने की अनुमति";
-      previewPlaceholder.textContent = langSelect.value === "en" ? "No image selected" : "कोई इमेज नहीं चुनी गई";
-      updateOnline();
-      if (currentResult) showResult(currentResult);
-      updateAnalytics();
-      updateWeather(); // Update weather text based on language
-    });
-
-    // save & load session
+    // Initialize the application
     function init() {
-      loadSession();
-      updateAnalytics();
-      generateCalendar();
-      updateWeather();
-      initChatbot(); // Initialize the chatbot
+      // Set up event listeners
+      setupEventListeners();
       
-      // pre-seed a sample detection so judges see non-empty analytics (optional)
+      // Initialize UI components
+      updateOnline();
+      confLabel.textContent = confRange.value + "%";
+      confRange.addEventListener("input", () => confLabel.textContent = confRange.value + "%");
+      
+      // Load session data
+      loadSession();
+      
+      // Initialize analytics
+      updateAnalytics();
+      
+      // Generate calendar
+      generateCalendar();
+      
+      // Update weather
+      updateWeather();
+      
+      // Initialize chatbot
+      initChatbot();
+      
+      // Pre-seed a sample detection for demo purposes
       if (!session.detections.length) {
         const sample = DISEASE_DB[0];
-        session.detections.push({ id: sample.id, crop: sample.crop, conf: 82, time: new Date().toISOString() });
+        session.detections.push({ 
+          id: sample.id, 
+          crop: sample.crop, 
+          conf: 82, 
+          time: new Date().toISOString() 
+        });
         saveSession(); 
         renderHistory(); 
         updateStats(); 
         updateAnalytics();
       }
+      
+      // Show welcome notification
+      showNotification("Welcome to FarmGuru AI", "Your intelligent crop advisory system is ready!", "success");
     }
 
-    // init app
-    init();
+    // Set up all event listeners
+    function setupEventListeners() {
+      // File upload
+      btnUpload.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", handleFileUpload);
+      
+      // Drag and drop for image
+      previewWrap.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        previewWrap.classList.add("border-emerald-500", "bg-green-50");
+      });
+      
+      previewWrap.addEventListener("dragleave", () => {
+        previewWrap.classList.remove("border-emerald-500", "bg-green-50");
+      });
+      
+      previewWrap.addEventListener("drop", (e) => {
+        e.preventDefault();
+        previewWrap.classList.remove("border-emerald-500", "bg-green-50");
+        
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          fileInput.files = e.dataTransfer.files;
+          handleFileUpload({ target: fileInput });
+        }
+      });
+      
+      // Click to open file dialog
+      previewWrap.addEventListener("click", () => fileInput.click());
+      
+      // Sample image
+      btnSample.addEventListener("click", useSampleImage);
+      
+      // Detection
+      btnDetect.addEventListener("click", detectDiseases);
+      
+      // Language change
+      langSelect.addEventListener("change", handleLanguageChange);
+      
+      // Tabs
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        b.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(x => x.classList.remove("tab-active"));
+          b.classList.add("tab-active");
+          document.querySelectorAll(".tab-pane").forEach(p => p.classList.add("hidden"));
+          const id = b.dataset.tab;
+          document.getElementById(id).classList.remove("hidden");
+        });
+      });
+      
+      // Speak advisory
+      btnSpeak.addEventListener("click", speakAdvisory);
+      
+      // Export data
+      btnExportCSV.addEventListener("click", exportCSV);
+      btnClearHistory.addEventListener("click", clearHistory);
+      
+      // PDF export
+      btnPdf.addEventListener("click", generatePDF);
+      
+      // Flag detection
+      btnFlag.addEventListener("click", flagDetection);
+      
+      // Share
+      btnShare.addEventListener("click", shareApp);
+      
+          // ... (previous JavaScript code continues)
 
-  })();
+    // Advanced features
+    btnDark.addEventListener("change", toggleDarkMode);
+    btnSaveImage.addEventListener("click", saveImage);
+    btnAnalyze.addEventListener("click", generateReport);
+    btnApiSim.addEventListener("click", simulateAPI);
+    btnShareAdvisory.addEventListener("click", shareAdvisory);
+    
+    // Pesticide calculator
+    btnCalculatePesticide.addEventListener("click", calculatePesticide);
+    fieldArea.addEventListener("input", calculatePesticide);
+    
+    // Chatbot functionality
+    chatToggle.addEventListener("click", toggleChatbot);
+    sendBtn.addEventListener("click", sendChatMessage);
+    chatInput.addEventListener("keypress", (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+    
+    // Voice recognition
+    voiceBtn.addEventListener("click", toggleVoiceRecognition);
+    
+    // Language buttons in chatbot
+    langButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        langButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        chatLang = btn.dataset.lang;
+      });
+    });
+  }
 
-  </script>
+  // Handle file upload
+  function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file || !file.type.match('image.*')) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentImage = e.target.result;
+      previewPlaceholder.classList.add("hidden");
+      previewWrap.innerHTML = `<img src="${currentImage}" alt="Uploaded crop image">`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Use sample image
+  function useSampleImage() {
+    const sampleKeys = Object.keys(SAMPLE_IMAGES);
+    const randomSample = sampleKeys[Math.floor(Math.random() * sampleKeys.length)];
+    
+    currentImage = SAMPLE_IMAGES[randomSample];
+    previewPlaceholder.classList.add("hidden");
+    previewWrap.innerHTML = `<img src="${currentImage}" alt="Sample crop image">`;
+    
+    // Auto-select the matching crop type
+    const disease = DISEASE_DB.find(d => d.id === randomSample);
+    if (disease) {
+      cropInput.value = disease.crop;
+    }
+    
+    showNotification("Sample loaded", "Using a sample image for demonstration", "info");
+  }
+
+  // Detect diseases (simulated)
+  function detectDiseases() {
+    if (!currentImage) {
+      showNotification("No image", "Please upload an image first", "error");
+      return;
+    }
+    
+    if (!cropInput.value) {
+      showNotification("Crop type required", "Please select the crop type", "error");
+      return;
+    }
+    
+    // Show progress
+    progressWrap.classList.remove("hidden");
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5;
+      progressBar.style.width = `${progress}%`;
+      progressPercent.textContent = `${progress}%`;
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+        processDetectionResult();
+      }
+    }, 100);
+  }
+
+  // Process detection result
+  function processDetectionResult() {
+    // Simulate AI processing
+    const confidence = parseInt(confRange.value);
+    const cropType = cropInput.value;
+    
+    // Find matching diseases for this crop
+    const possibleDiseases = DISEASE_DB.filter(d => d.crop === cropType);
+    
+    if (possibleDiseases.length === 0) {
+      showNotification("No diseases found", `No known diseases for ${cropType} in our database`, "warning");
+      progressWrap.classList.add("hidden");
+      return;
+    }
+    
+    // Randomly select a disease (simulating AI detection)
+    const detectedDisease = possibleDiseases[Math.floor(Math.random() * possibleDiseases.length)];
+    const detectedConfidence = Math.min(95, confidence + Math.floor(Math.random() * 20) - 10);
+    
+    // Update session
+    session.detections.push({
+      id: detectedDisease.id,
+      crop: cropType,
+      conf: detectedConfidence,
+      time: new Date().toISOString()
+    });
+    saveSession();
+    
+    // Display results
+    displayResults(detectedDisease, detectedConfidence);
+    
+    // Update UI
+    updateStats();
+    renderHistory();
+    updateAnalytics();
+    progressWrap.classList.add("hidden");
+    
+    showNotification("Detection complete", `${detectedDisease.name_en} detected with ${detectedConfidence}% confidence`, "success");
+  }
+
+  // Display results
+  function displayResults(disease, confidence) {
+    currentResult = disease;
+    
+    // Update result card
+    resultCard.classList.remove("hidden");
+    detectedName.textContent = disease[`name_${langSelect.value}`] || disease.name_en;
+    tagCrop.textContent = disease.crop;
+    tagConf.textContent = `${confidence}%`;
+    
+    // Update severity indicator
+    const severity = disease.severity;
+    severityFill.style.width = `${severity}%`;
+    severityValue.textContent = getSeverityText(severity);
+    severityFill.className = "severity-fill " + getSeverityColor(severity);
+    
+    // Update advisory
+    updateAdvisory(disease);
+    
+    // Update symptoms
+    updateSymptoms(disease);
+    
+    // Update nearby stores
+    updateNearbyStores();
+    
+    // Update pesticide recommendation
+    updatePesticideRecommendation(disease);
+  }
+
+  // Get severity text
+  function getSeverityText(severity) {
+    if (severity < 25) return `Low (${severity}%)`;
+    if (severity < 50) return `Moderate (${severity}%)`;
+    if (severity < 75) return `High (${severity}%)`;
+    return `Critical (${severity}%)`;
+  }
+
+  // Get severity color
+  function getSeverityColor(severity) {
+    if (severity < 25) return "bg-emerald-500";
+    if (severity < 50) return "bg-amber-500";
+    if (severity < 75) return "bg-orange-500";
+    return "bg-rose-500";
+  }
+
+  // Update advisory
+  function updateAdvisory(disease) {
+    const lang = langSelect.value;
+    const treatments = disease[`treatment_${lang}`] || disease.treatment_en;
+    
+    advList.innerHTML = "";
+    treatments.forEach(treatment => {
+      const li = document.createElement("li");
+      li.textContent = treatment;
+      li.className = "text-sm";
+      advList.appendChild(li);
+    });
+  }
+
+  // Update symptoms
+  function updateSymptoms(disease) {
+    const lang = langSelect.value;
+    const symptoms = disease[`symptoms_${lang}`] || disease.symptoms_en;
+    
+    symList.innerHTML = "";
+    symptoms.forEach(symptom => {
+      const li = document.createElement("li");
+      li.textContent = symptom;
+      li.className = "text-sm";
+      symList.appendChild(li);
+    });
+  }
+
+  // Update nearby stores
+  function updateNearbyStores() {
+    // Simulate nearby stores
+    const stores = [
+      { name: "Kisan Agri Clinic", distance: "2.3 km", rating: "4.2" },
+      { name: "Krishi Seva Kendra", distance: "3.1 km", rating: "4.5" },
+      { name: "Farm Solutions", distance: "5.7 km", rating: "4.0" }
+    ];
+    
+    storesList.innerHTML = "";
+    stores.forEach(store => {
+      const div = document.createElement("div");
+      div.className = "flex justify-between items-center py-2 border-b";
+      div.innerHTML = `
+        <div>
+          <div class="font-medium">${store.name}</div>
+          <div class="text-xs text-slate-500">${store.distance} away</div>
+        </div>
+        <div class="badge bg-amber-100 text-amber-800">★ ${store.rating}</div>
+      `;
+      storesList.appendChild(div);
+    });
+    
+    // Initialize map if not already done
+    if (!leafletMap) {
+      initMap();
+    }
+  }
+
+  // Initialize map
+  function initMap() {
+    leafletMap = L.map(mapEl).setView([26.8467, 80.9462], 13); // Default to Lucknow
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(leafletMap);
+    
+    // Add markers for stores
+    L.marker([26.8467, 80.9462]).addTo(leafletMap)
+      .bindPopup('Kisan Agri Clinic');
+    
+    L.marker([26.8567, 80.9562]).addTo(leafletMap)
+      .bindPopup('Krishi Seva Kendra');
+    
+    L.marker([26.8367, 80.9362]).addTo(leafletMap)
+      .bindPopup('Farm Solutions');
+  }
+
+  // Update pesticide recommendation
+  function updatePesticideRecommendation(disease) {
+    // Set a recommended dosage based on disease severity
+    const dosage = disease.severity > 50 ? "3g/L" : "2g/L";
+    recommendedDosage.value = dosage;
+    
+    // Calculate initial pesticide requirement
+    calculatePesticide();
+  }
+
+  // Calculate pesticide
+  function calculatePesticide() {
+    const area = parseFloat(fieldArea.value) || 1;
+    const dosageText = recommendedDosage.value;
+    const dosageValue = parseFloat(dosageText);
+    
+    // Calculate required pesticide (assuming 200L water per acre)
+    const pesticideNeeded = area * 200 * dosageValue;
+    pesticideResult.textContent = `${pesticideNeeded}g`;
+  }
+
+  // Speak advisory
+  function speakAdvisory() {
+    if (!currentResult) return;
+    
+    const lang = langSelect.value;
+    const diseaseName = currentResult[`name_${lang}`] || currentResult.name_en;
+    const treatments = currentResult[`treatment_${lang}`] || currentResult.treatment_en;
+    
+    const speechText = `Treatment for ${diseaseName}. ${treatments.join('. ')}`;
+    
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance(speechText);
+      speech.lang = getSpeechLang(lang);
+      window.speechSynthesis.speak(speech);
+    } else {
+      showNotification("Voice not supported", "Your browser doesn't support text-to-speech", "warning");
+    }
+  }
+
+  // Get speech language code
+  function getSpeechLang(lang) {
+    const langMap = {
+      'en': 'en-IN',
+      'hi': 'hi-IN',
+      'ta': 'ta-IN',
+      'te': 'te-IN'
+    };
+    return langMap[lang] || 'en-IN';
+  }
+
+  // Handle language change
+  function handleLanguageChange() {
+    const lang = langSelect.value;
+    
+    // Update UI texts based on language
+    updateUITexts(lang);
+    
+    // Update results if any
+    if (currentResult) {
+      detectedName.textContent = currentResult[`name_${lang}`] || currentResult.name_en;
+      updateAdvisory(currentResult);
+      updateSymptoms(currentResult);
+    }
+  }
+
+  // Update UI texts based on language
+  function updateUITexts(lang) {
+    // This would be more comprehensive in a real application
+    const translations = {
+      en: {
+        leftTitle: "Crop Health Analysis",
+        consentLabel: "Allow anonymous learning",
+        resultsHeading: "Result & Advisory",
+        resultSub: "Upload & detect to see result"
+      },
+      hi: {
+        leftTitle: "फसल स्वास्थ्य विश्लेषण",
+        consentLabel: "अनामिक सीखने की अनुमति दें",
+        resultsHeading: "परिणाम और सलाह",
+        resultSub: "परिणाम देखने के लिए अपलोड और पहचान करें"
+      },
+      ta: {
+        leftTitle: "பயிர் சுகாதார பகுப்பாய்வு",
+        consentLabel: "அநாமதேய கற்றலை அனுமதிக்கவும்",
+        resultsHeading: "முடிவு மற்றும் ஆலோசனை",
+        resultSub: "முடிவைக் காண பதிவேற்றம் மற்றும் கண்டறிதல்"
+      },
+      te: {
+        leftTitle: "పంట ఆరోగ్య విశ్లేషణ",
+        consentLabel: "అజ్ఞాత అభ్యాసాన్ని అనుమతించండి",
+        resultsHeading: "ఫలితం మరియు సలహా",
+        resultSub: "ఫలితం చూడటానికి అప్లోడ్ మరియు గుర్తించండి"
+      }
+    };
+    
+    const t = translations[lang] || translations.en;
+    
+    // Update UI elements
+    document.getElementById("leftTitle").textContent = t.leftTitle;
+    document.getElementById("consentLabel").textContent = t.consentLabel;
+    document.getElementById("resultsHeading").textContent = t.resultsHeading;
+    document.getElementById("resultSub").textContent = t.resultSub;
+  }
+
+  // Update online status
+  function updateOnline() {
+    const isOnline = navigator.onLine;
+    onlineDot.className = `h-3 w-3 rounded-full block ${isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`;
+    onlineText.textContent = isOnline ? 'Online' : 'Offline';
+  }
+
+  // Save session to localStorage
+  function saveSession() {
+    localStorage.setItem('farmguru_session', JSON.stringify(session));
+  }
+
+  // Load session from localStorage
+  function loadSession() {
+    const saved = localStorage.getItem('farmguru_session');
+    if (saved) {
+      session = JSON.parse(saved);
+      updateStats();
+      renderHistory();
+      updateAnalytics();
+    }
+  }
+
+  // Update statistics
+  function updateStats() {
+    statDetections.textContent = session.detections.length;
+    statFlags.textContent = session.flags;
+  }
+
+  // Render history
+  function renderHistory() {
+    historyList.innerHTML = "";
+    
+    if (session.detections.length === 0) {
+      historyList.innerHTML = '<div class="text-center text-slate-500 py-4">No detection history</div>';
+      return;
+    }
+    
+    // Show last 5 detections
+    const recent = session.detections.slice(-5).reverse();
+    
+    recent.forEach(detection => {
+      const disease = DISEASE_DB.find(d => d.id === detection.id);
+      if (!disease) return;
+      
+      const time = new Date(detection.time).toLocaleTimeString();
+      
+      const div = document.createElement("div");
+      div.className = "flex justify-between items-center py-2 border-b";
+      div.innerHTML = `
+        <div>
+          <div class="font-medium">${disease.crop}</div>
+          <div class="text-xs text-slate-500">${disease.name_en}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm">${detection.conf}%</div>
+          <div class="text-xs text-slate-500">${time}</div>
+        </div>
+      `;
+      historyList.appendChild(div);
+    });
+  }
+
+  // Update analytics
+  function updateAnalytics() {
+    if (session.detections.length === 0) {
+      avgConf.textContent = "0%";
+      uniqueCrops.textContent = "0";
+      return;
+    }
+    
+    // Calculate average confidence
+    const totalConf = session.detections.reduce((sum, d) => sum + d.conf, 0);
+    const avg = Math.round(totalConf / session.detections.length);
+    avgConf.textContent = `${avg}%`;
+    
+    // Count unique crops
+    const unique = new Set(session.detections.map(d => d.crop));
+    uniqueCrops.textContent = unique.size;
+    
+    // Update chart
+    updateDiseaseChart();
+  }
+
+  // Update disease chart
+ function updateDiseaseChart() {
+    // Count diseases by type
+    const diseaseCount = {};
+    session.detections.forEach(d => {
+      diseaseCount[d.id] = (diseaseCount[d.id] || 0) + 1;
+    });
+    
+    const diseaseNames = [];
+    const detectionCounts = [];
+    const backgroundColors = [
+      '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6', 
+      '#EC4899', '#6366F1', '#14B8A6', '#F97316', '#84CC16'
+    ];
+    
+    Object.keys(diseaseCount).forEach((id, index) => {
+      const disease = DISEASE_DB.find(d => d.id === id);
+      if (disease) {
+        diseaseNames.push(disease.name_en);
+        detectionCounts.push(diseaseCount[id]);
+      }
+    });
+    
+    // If no data, show a placeholder message
+    if (detectionCounts.length === 0) {
+      diseaseNames.push("No Data");
+      detectionCounts.push(1);
+      backgroundColors[0] = '#E5E7EB';
+    }
+    
+    // Destroy previous chart if exists
+    if (diseaseChart) {
+      diseaseChart.destroy();
+    }
+    
+    // Create new chart with proper configuration
+    diseaseChart = new Chart(diseaseChartCtx, {
+      type: 'doughnut',
+      data: {
+        labels: diseaseNames,
+        datasets: [{
+          data: detectionCounts,
+          backgroundColor: backgroundColors,
+          borderWidth: 2,
+          borderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 12,
+              font: {
+                size: 10
+              },
+              padding: 15
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((value / total) * 100);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Export CSV
+  function exportCSV() {
+    if (session.detections.length === 0) {
+      showNotification("No data", "There's no data to export", "warning");
+      return;
+    }
+    
+    let csv = "Crop,Disease,Confidence,Time\n";
+    
+    session.detections.forEach(detection => {
+      const disease = DISEASE_DB.find(d => d.id === detection.id);
+      const diseaseName = disease ? disease.name_en : "Unknown";
+      const time = new Date(detection.time).toLocaleString();
+      
+      csv += `"${detection.crop}","${diseaseName}",${detection.conf},"${time}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `farmguru_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    showNotification("Exported", "Detection history exported as CSV", "success");
+  }
+
+  // Clear history
+  function clearHistory() {
+    if (confirm("Are you sure you want to clear all history?")) {
+      session.detections = [];
+      saveSession();
+      updateStats();
+      renderHistory();
+      updateAnalytics();
+      
+      showNotification("History cleared", "All detection history has been removed", "info");
+    }
+  }
+
+  // Generate PDF
+  function generatePDF() {
+    if (!currentResult) {
+      showNotification("No result", "There's no result to export", "warning");
+      return;
+    }
+    
+    // In a real app, we would use jsPDF here
+    showNotification("PDF export", "PDF report generation would happen here", "info");
+  }
+
+  // Flag detection
+  function flagDetection() {
+    if (!currentResult) return;
+    
+    session.flags++;
+    saveSession();
+    updateStats();
+    
+    showNotification("Flagged", "This detection has been flagged for review", "info");
+  }
+
+  // Share app
+  function shareApp() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'FarmGuru AI',
+        text: 'Check out this AI-powered crop advisory system',
+        url: window.location.href
+      })
+      .catch(err => {
+        showNotification("Sharing failed", "Could not share the app", "error");
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+          showNotification("Copied", "App link copied to clipboard", "success");
+        })
+        .catch(err => {
+          showNotification("Copy failed", "Could not copy app link", "error");
+        });
+    }
+  }
+
+  // Toggle dark mode
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+  }
+
+  // Save image
+  function saveImage() {
+    if (!currentImage) {
+      showNotification("No image", "There's no image to save", "warning");
+      return;
+    }
+    
+    const a = document.createElement('a');
+    a.href = currentImage;
+    a.download = 'farmguru_crop_image.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    showNotification("Image saved", "Crop image downloaded", "success");
+  }
+
+  // Generate report
+  function generateReport() {
+    if (session.detections.length === 0) {
+      showNotification("No data", "There's no data to analyze", "warning");
+      return;
+    }
+    
+    // Simulate report generation
+    showNotification("Report generated", "Analytics report would be generated here", "info");
+  }
+
+  // Simulate API
+  function simulateAPI() {
+    showNotification("API simulation", "This would upload data to cloud API", "info");
+  }
+
+  // Share advisory
+  function shareAdvisory() {
+    if (!currentResult) {
+      showNotification("No advisory", "There's no advisory to share", "warning");
+      return;
+    }
+    
+    const lang = langSelect.value;
+    const diseaseName = currentResult[`name_${lang}`] || currentResult.name_en;
+    
+    const shareText = `FarmGuru AI detected ${diseaseName} in my ${currentResult.crop} crop. Check out FarmGuru AI for smart farming solutions!`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'FarmGuru AI Detection',
+        text: shareText,
+        url: window.location.href
+      })
+      .catch(err => {
+        showNotification("Sharing failed", "Could not share the advisory", "error");
+      });
+    } else {
+      navigator.clipboard.writeText(shareText)
+        .then(() => {
+          showNotification("Copied", "Advisory text copied to clipboard", "success");
+        })
+        .catch(err => {
+          showNotification("Copy failed", "Could not copy advisory text", "error");
+        });
+    }
+  }
+
+  // Generate calendar
+  function generateCalendar() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    // Set current month text
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
+    currentMonth.textContent = `${monthNames[month]} ${year}`;
+    
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Clear previous calendar
+    cropCalendar.innerHTML = "";
+    
+    // Add empty cells for days before first day of month
+    for (let i = 0; i < firstDay; i++) {
+      const emptyCell = document.createElement("div");
+      emptyCell.className = "crop-calendar-day opacity-30";
+      cropCalendar.appendChild(emptyCell);
+    }
+    
+    // Add cells for each day of the month
+    const today = now.getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayCell = document.createElement("div");
+      dayCell.className = "crop-calendar-day";
+      if (day === today) dayCell.classList.add("today");
+      dayCell.textContent = day;
+      
+      // Add click event
+      dayCell.addEventListener("click", () => {
+        document.querySelectorAll(".crop-calendar-day").forEach(d => d.classList.remove("active"));
+        dayCell.classList.add("active");
+        
+        showNotification("Date selected", `You selected ${day} ${monthNames[month]}`, "info");
+      });
+      
+      cropCalendar.appendChild(dayCell);
+    }
+  }
+
+  // Update weather
+  function updateWeather() {
+    // Simulate weather data
+    const weatherData = {
+      temp: 32,
+      condition: "Partly Cloudy",
+      humidity: 65,
+      rain: 10,
+      advice: "Good weather for spraying treatments."
+    };
+    
+    currentTemp.textContent = `${weatherData.temp}°C`;
+    weatherCondition.textContent = weatherData.condition;
+    weatherHumidity.textContent = `${weatherData.humidity}%`;
+    weatherRain.textContent = `${weatherData.rain}%`;
+    weatherAdvice.textContent = weatherData.advice;
+  }
+
+  // Initialize chatbot
+  function initChatbot() {
+    // Check if browser supports speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = transcript;
+      };
+      
+      recognition.onend = function() {
+        isListening = false;
+        voiceBtn.classList.remove("listening");
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+      };
+    } else {
+      voiceBtn.style.display = 'none';
+    }
+  }
+
+  // Toggle chatbot
+  function toggleChatbot() {
+    chatbotContainer.classList.toggle("hidden");
+  }
+
+  // Send chat message
+  function sendChatMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+    
+    // Add user message
+    addChatMessage(message, "user");
+    chatInput.value = "";
+    
+    // Simulate AI response after a delay
+    setTimeout(() => {
+      const response = generateChatResponse(message);
+      addChatMessage(response, "bot");
+    }, 1000);
+  }
+
+  // Add chat message
+  function addChatMessage(text, sender) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${sender}-message`;
+    messageDiv.textContent = text;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Generate chat response
+  function generateChatResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    const kb = CHATBOT_KB[chatLang] || CHATBOT_KB.en;
+    
+    // Check for greetings
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
+        lowerMessage.includes('नमस्ते') || lowerMessage.includes('வணக்கம்') || 
+        lowerMessage.includes('నమస్కారం')) {
+      return kb.greeting[Math.floor(Math.random() * kb.greeting.length)];
+    }
+    
+    // Check for thanks
+    if (lowerMessage.includes('thank') || lowerMessage.includes('धन्यवाद') || 
+        lowerMessage.includes('நன்றி') || lowerMessage.includes('ధన్యవాదాలు')) {
+      return kb.thanks[Math.floor(Math.random() * kb.thanks.length)];
+    }
+    
+    // Check for farewell
+    if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye') || 
+        lowerMessage.includes('अलविदा') || lowerMessage.includes('சென்று வருகிறேன்') || 
+        lowerMessage.includes('వీడ్కోలు')) {
+      return kb.farewell[Math.floor(Math.random() * kb.farewell.length)];
+    }
+    
+    // Check for known questions
+    for (const [key, answer] of Object.entries(kb.questions)) {
+      if (lowerMessage.includes(key)) {
+        return answer;
+      }
+    }
+    
+    // Fallback response
+    return kb.fallback[Math.floor(Math.random() * kb.fallback.length)];
+  }
+
+  // Toggle voice recognition
+  function toggleVoiceRecognition() {
+    if (!recognition) {
+      showNotification("Voice not supported", "Your browser doesn't support voice recognition", "warning");
+      return;
+    }
+    
+    if (isListening) {
+      recognition.stop();
+    } else {
+      recognition.start();
+      isListening = true;
+      voiceBtn.classList.add("listening");
+      voiceBtn.innerHTML = '<i class="fas fa-circle"></i>';
+    }
+  }
+
+  // Show notification
+  function showNotification(title, message, type) {
+    notificationTitle.textContent = title;
+    notificationMessage.textContent = message;
+    
+    // Set icon and color based on type
+    let icon = "fa-info-circle";
+    if (type === "success") icon = "fa-check-circle";
+    if (type === "error") icon = "fa-exclamation-circle";
+    if (type === "warning") icon = "fa-exclamation-triangle";
+    
+    notificationIcon.className = `fas ${icon}`;
+    notification.className = `notification notification-${type}`;
+    
+    // Show notification
+    notification.classList.remove("hidden");
+    setTimeout(() => {
+      notification.classList.add("show");
+    }, 10);
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+      notification.classList.remove("show");
+      setTimeout(() => {
+        notification.classList.add("hidden");
+      }, 300);
+    }, 5000);
+  }
+
+  // Initialize the app when DOM is loaded
+  document.addEventListener('DOMContentLoaded', init);
+  
+  // Update online status when network changes
+  window.addEventListener('online', updateOnline);
+  window.addEventListener('offline', updateOnline);
+})();
+</script>
 </body>
 </html>

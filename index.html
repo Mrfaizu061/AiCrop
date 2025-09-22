@@ -426,6 +426,78 @@
     .notification-warning {
       border-left: 4px solid var(--warning);
     }
+
+    /* New styles for multi-image and enhanced features */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    .image-item {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      height: 80px;
+    }
+    
+    .image-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .image-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 2px 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .file-summary {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .store-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .scheme-item:hover {
+      transform: translateX(5px);
+      transition: transform 0.2s ease;
+    }
+    
+    .price-item {
+      transition: all 0.3s ease;
+    }
+    
+    .price-item:hover {
+      background: #f0fdf4;
+      padding: 8px;
+      border-radius: 8px;
+      margin: 0 -8px;
+    }
+    
+    .custom-marker {
+      animation: pulse 2s infinite;
+    }
     
     /* Responsive */
     @media (max-width: 1024px) {
@@ -452,6 +524,10 @@
         width: 56px;
         height: 56px;
       }
+      
+      .image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
     }
   </style>
 </head>
@@ -473,26 +549,30 @@
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 21s7-4 10-8 4-8 4-8-6.5 0-11 4S3 21 3 21z" fill="white"></path></svg>
         </div>
         <div>
-          <h1 class="text-2xl md:text-3xl font-bold">FarmGuru AI</h1>
-          <p class="small-muted">Intelligent Crop Advisory System · Hackathon Prototype</p>
+          <h1 class="text-2xl md:text-3xl font-bold" id="appTitle">FarmGuru AI</h1>
+          <p class="small-muted" id="appSubtitle">Intelligent Crop Advisory System · Hackathon Prototype</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
+        <a href="m.html" data-lang-key="contact">MarketPlace</a>
         <div id="onlineBadge" class="flex items-center gap-2 px-3 py-1 rounded-full border bg-white/70 shadow-sm">
+              
           <span id="onlineDot" class="h-3 w-3 rounded-full bg-emerald-500 block"></span>
+                  
           <span id="onlineText" class="text-sm">Online</span>
         </div>
 
         <select id="langSelect" class="rounded-lg border px-3 py-1 bg-white">
           <option value="en">English</option>
           <option value="hi">हिंदी</option>
-        <option value="ml">മലയാളം(Malyalam)</option>
-          <option value="te">తెలుగు(Telugu)</option>
+          <option value="ml">മലയാളം</option>
+          <option value="te">తెలుగు</option>
+          <option value="mr">मराठी</option>
         </select>
 
         <button id="shareBtn" class="px-4 py-2 rounded-lg bg-emerald-600 text-white shadow flex items-center gap-2">
-          <i class="fas fa-share-alt"></i> Share
+          <i class="fas fa-share-alt"></i> <span id="shareText">Share</span>
         </button>
       </div>
     </header>
@@ -504,7 +584,7 @@
           <i class="fas fa-leaf text-xl"></i>
         </div>
         <div>
-          <div class="text-sm text-slate-500">Detections Today</div>
+          <div class="text-sm text-slate-500" id="detectionLabel">Detections Today</div>
           <div class="text-2xl font-bold">12</div>
         </div>
       </div>
@@ -514,7 +594,7 @@
           <i class="fas fa-exclamation-triangle text-xl"></i>
         </div>
         <div>
-          <div class="text-sm text-slate-500">Disease Alerts</div>
+          <div class="text-sm text-slate-500" id="alertsLabel">Disease Alerts</div>
           <div class="text-2xl font-bold">3</div>
         </div>
       </div>
@@ -524,7 +604,7 @@
           <i class="fas fa-cloud-sun text-xl"></i>
         </div>
         <div>
-          <div class="text-sm text-slate-500">Weather Index</div>
+          <div class="text-sm text-slate-500" id="weatherLabel">Weather Index</div>
           <div class="text-2xl font-bold">72%</div>
         </div>
       </div>
@@ -534,7 +614,7 @@
           <i class="fas fa-rupee-sign text-xl"></i>
         </div>
         <div>
-          <div class="text-sm text-slate-500">Market Trends</div>
+          <div class="text-sm text-slate-500" id="marketLabel">Market Trends</div>
           <div class="text-2xl font-bold">+5.2%</div>
         </div>
       </div>
@@ -553,22 +633,23 @@
           <div id="previewWrap" class="w-full h-64 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden mb-4 cursor-pointer">
             <div id="previewPlaceholder" class="text-center p-4">
               <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2"></i>
-              <p class="text-sm text-slate-400">Click to upload or drag & drop</p>
+              <p class="text-sm text-slate-400" id="uploadText">Click to upload or drag & drop</p>
+              <p class="text-xs text-slate-500 mt-1" id="uploadNote">Multiple images supported (max 5MB total, 2MB each)</p>
             </div>
           </div>
 
           <div class="flex gap-2 mb-4">
-            <input id="fileInput" type="file" accept="image/*" class="hidden" />
+            <input id="fileInput" type="file" accept="image/*" class="hidden" multiple />
             <button id="btnUpload" class="btn-primary flex-1">
-              <i class="fas fa-upload"></i> Upload Image
+              <i class="fas fa-upload"></i> <span id="uploadBtnText">Upload Image</span>
             </button>
             <button id="btnSample" class="btn-outline">
-              <i class="fas fa-vial"></i> Use Sample
+              <i class="fas fa-vial"></i> <span id="sampleBtnText">Use Sample</span>
             </button>
           </div>
 
           <div class="mb-4">
-            <label class="text-sm font-medium block mb-2">Crop Type</label>
+            <label class="text-sm font-medium block mb-2" id="cropTypeLabel">Crop Type</label>
             <select id="cropInput" class="input">
               <option value="">Select crop type</option>
               <option value="Tomato">Tomato</option>
@@ -582,17 +663,17 @@
           </div>
 
           <div class="mb-4">
-       <label class="text-sm font-medium block mb-2">Confidence threshold: <span id="confLabel">70%</span></label>
+            <label class="text-sm font-medium block mb-2" id="confidenceLabel">Confidence threshold: <span id="confLabel">70%</span></label>
             <input id="confRange" type="range" min="50" max="95" value="70" class="w-full" /> 
           </div>
 
-          <div class="flex items-center justify-between gap-3 m b-4">
+          <div class="flex items-center justify-between gap-3 mb-4">
             <label class="flex items-center gap-2 text-sm cursor-pointer">
               <input id="consent" type="checkbox" checked class="rounded"/>
               <span id="consentLabel">Allow anonymous learning</span>
             </label>
             <button id="btnDetect" class="btn-primary">
-              <i class="fas fa-magic"></i> Detect Issues
+              <i class="fas fa-magic"></i> <span id="detectBtnText">Detect Issues</span>
             </button>
           </div>
 
@@ -610,7 +691,7 @@
         <!-- Weather Forecast Widget -->
         <div class="dashboard-card">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="font-semibold">Weather Forecast</h3>
+            <h3 class="font-semibold" id="weatherTitle">Weather Forecast</h3>
             <div class="text-xs text-slate-500" id="weatherLocation">Lucknow, UP</div>
           </div>
           <div id="weatherContainer" class="space-y-3">
@@ -650,30 +731,30 @@
 
         <div class="dashboard-card space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="font-semibold">Session Stats</h3>
+            <h3 class="font-semibold" id="sessionTitle">Session Stats</h3>
             <div class="text-xs text-slate-500">Realtime</div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div class="p-3 rounded-lg bg-emerald-50">
-              <div class="text-sm text-slate-600">Detections</div>
+              <div class="text-sm text-slate-600" id="detectionCountLabel">Detections</div>
               <div id="statDetections" class="text-xl font-bold">0</div>
             </div>
             <div class="p-3 rounded-lg bg-amber-50">
-              <div class="text-sm text-slate-600">Flags</div>
+              <div class="text-sm text-slate-600" id="flagsLabel">Flags</div>
               <div id="statFlags" class="text-xl font-bold">0</div>
             </div>
           </div>
 
           <div>
-            <h4 class="text-sm font-medium mb-2">History</h4>
+            <h4 class="text-sm font-medium mb-2" id="historyLabel">History</h4>
             <div id="historyList" class="max-h-36 overflow-auto space-y-2 text-sm"></div>
             <div class="flex gap-2 mt-3">
               <button id="btnExportCSV" class="btn-outline flex-1">
-                <i class="fas fa-file-csv"></i> Export CSV
+                <i class="fas fa-file-csv"></i> <span id="exportBtnText">Export CSV</span>
               </button>
               <button id="btnClearHistory" class="btn-outline text-red-600">
-                <i class="fas fa-trash"></i> Clear
+                <i class="fas fa-trash"></i> <span id="clearBtnText">Clear</span>
               </button>
             </div>
           </div>
@@ -697,14 +778,14 @@
               <div id="tagCrop" class="badge"></div>
               <div id="tagConf" class="badge bg-blue-100 text-blue-800"></div>
               <button id="btnSpeak" class="ml-auto btn-outline">
-                <i class="fas fa-volume-up"></i> Speak
+                <i class="fas fa-volume-up"></i> <span id="speakBtnText">Speak</span>
               </button>
             </div>
 
             <!-- Disease Severity Indicator -->
             <div class="mb-4">
               <div class="flex items-center justify-between mb-1">
-                <span class="text-sm font-medium">Disease Severity</span>
+                <span class="text-sm font-medium" id="severityLabel">Disease Severity</span>
                 <span class="text-xs" id="severityValue">Moderate (45%)</span>
               </div>
               <div class="severity-indicator">
@@ -715,16 +796,16 @@
             <div>
               <div class="flex gap-2 border-b pb-2 overflow-x-auto">
                 <button class="tab-btn tab-active" data-tab="advisory">
-                  <i class="fas fa-lightbulb"></i> Advisory
+                  <i class="fas fa-lightbulb"></i> <span id="advisoryTabText">Advisory</span>
                 </button>
                 <button class="tab-btn" data-tab="symptoms">
-                  <i class="fas fa-stethoscope"></i> Symptoms
+                  <i class="fas fa-stethoscope"></i> <span id="symptomsTabText">Symptoms</span>
                 </button>
                 <button class="tab-btn" data-tab="stores">
-                  <i class="fas fa-store"></i> Nearby Stores
+                  <i class="fas fa-store"></i> <span id="storesTabText">Nearby Stores</span>
                 </button>
                 <button class="tab-btn" data-tab="pesticide">
-                  <i class="fas fa-calculator"></i> Spray Calculator
+                  <i class="fas fa-calculator"></i> <span id="pesticideTabText">Spray Calculator</span>
                 </button>
               </div>
 
@@ -740,23 +821,23 @@
                   <div id="map" class="w-full h-40 rounded-xl mt-3 border"></div>
                 </div>
                 <div id="pesticide" class="tab-pane hidden">
-                  <div class="text-sm mb-3">Calculate required pesticide quantity for your field</div>
+                  <div class="text-sm mb-3" id="pesticideCalcText">Calculate required pesticide quantity for your field</div>
                   <div class="space-y-3">
                     <div>
-                      <label class="text-sm font-medium">Field Area (acres)</label>
+                      <label class="text-sm font-medium" id="fieldAreaLabel">Field Area (acres)</label>
                       <input type="number" id="fieldArea" class="input mt-1" placeholder="e.g., 2.5" value="1" min="0.1" step="0.1">
                     </div>
                     <div>
-                      <label class="text-sm font-medium">Recommended dosage</label>
+                      <label class="text-sm font-medium" id="dosageLabel">Recommended dosage</label>
                       <input type="text" id="recommendedDosage" class="input mt-1 bg-gray-100" value="2g/L" readonly>
                     </div>
                     <div class="pesticide-card bg-slate-50 p-3 rounded-lg">
-                      <div class="text-sm font-medium">You will need approximately:</div>
+                      <div class="text-sm font-medium" id="pesticideNeededText">You will need approximately:</div>
                       <div id="pesticideResult" class="font-bold text-lg mt-1">200g</div>
-                      <div class="text-xs text-slate-500 mt-1">For spraying at 200L/acre</div>
+                      <div class="text-xs text-slate-500 mt-1" id="pesticideNote">For spraying at 200L/acre</div>
                     </div>
                     <button id="btnCalculatePesticide" class="btn-primary w-full">
-                      <i class="fas fa-calculator"></i> Calculate
+                      <i class="fas fa-calculator"></i> <span id="calculateBtnText">Calculate</span>
                     </button>
                   </div>
                 </div>
@@ -767,10 +848,10 @@
               <textarea id="notes" placeholder="Notes (field, spray dates)" class="input h-24"></textarea>
               <div class="flex gap-2">
                 <button id="btnPdf" class="btn-primary flex-1">
-                  <i class="fas fa-file-pdf"></i> Download PDF
+                  <i class="fas fa-file-pdf"></i> <span id="pdfBtnText">Download PDF</span>
                 </button>
                 <button id="btnFlag" class="btn-outline">
-                  <i class="fas fa-flag"></i> Flag wrong detection
+                  <i class="fas fa-flag"></i> <span id="flagBtnText">Flag wrong detection</span>
                 </button>
               </div>
             </div>
@@ -780,7 +861,7 @@
         <!-- Crop Calendar Widget -->
         <div class="dashboard-card">
           <div class="flex items-center justify-between mb-4">
-            <h4 class="font-medium">Crop Calendar</h4>
+            <h4 class="font-medium" id="calendarTitle">Crop Calendar</h4>
             <div class="text-xs text-slate-500" id="currentMonth">August 2023</div>
           </div>
           <div class="grid grid-cols-7 gap-1 text-xs text-center mb-2">
@@ -795,46 +876,46 @@
         <div class="dashboard-card">
           <div class="flex items-center justify-between">
             <div>
-              <h4 class="font-medium">Advanced</h4>
-              <p class="text-xs text-slate-500">Experimental features</p>
+              <h4 class="font-medium" id="advancedTitle">Advanced</h4>
+              <p class="text-xs text-slate-500" id="advancedSubtitle">Experimental features</p>
             </div>
             <label class="flex items-center gap-2 text-sm cursor-pointer">
               <input id="darkToggle" type="checkbox" />
-              <span>Dark UI</span>
+              <span id="darkModeText">Dark UI</span>
             </label>
           </div>
 
           <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
             <button id="btnShareAdvisory" class="btn-outline">
-              <i class="fas fa-share"></i> Share Advisory
+              <i class="fas fa-share"></i> <span id="shareAdvisoryText">Share Advisory</span>
             </button>
             <button id="btnSaveImage" class="btn-outline">
-              <i class="fas fa-save"></i> Save Image
+              <i class="fas fa-save"></i> <span id="saveImageText">Save Image</span>
             </button>
             <button id="btnAnalyze" class="btn-primary">
-              <i class="fas fa-chart-line"></i> Generate Report
+              <i class="fas fa-chart-line"></i> <span id="analyzeBtnText">Generate Report</span>
             </button>
             <button id="btnApiSim" class="btn-outline">
-              <i class="fas fa-cloud-upload-alt"></i> Simulate Upload
+              <i class="fas fa-cloud-upload-alt"></i> <span id="apiSimText">Simulate Upload</span>
             </button>
           </div>
         </div>
       </div>
 
-         <!-- RIGHT: Analytics & Pitch -->
+      <!-- RIGHT: Analytics & Pitch -->
       <div class="col-span-1 space-y-6">
         <div class="dashboard-card">
-          <h4 class="font-medium mb-4">Analytics</h4>
-          <div class="h-48 relative"> <!-- Added wrapper with fixed height -->
+          <h4 class="font-medium mb-4" id="analyticsTitle">Analytics</h4>
+          <div class="h-48 relative">
             <canvas id="diseaseChart"></canvas>
           </div>
           <div class="mt-4 grid grid-cols-2 gap-3">
             <div class="p-3 rounded-lg bg-emerald-50">
-              <div class="text-xs text-slate-600">Avg Confidence</div>
+              <div class="text-xs text-slate-600" id="avgConfLabel">Avg Confidence</div>
               <div id="avgConf" class="text-lg font-bold">0%</div>
             </div>
             <div class="p-3 rounded-lg bg-sky-50">
-              <div class="text-xs text-slate-600">Unique Crops</div>
+              <div class="text-xs text-slate-600" id="uniqueCropsLabel">Unique Crops</div>
               <div id="uniqueCrops" class="text-lg font-bold">0</div>
             </div>
           </div>
@@ -843,8 +924,8 @@
         <!-- Market Prices Widget -->
         <div class="dashboard-card">
           <div class="flex items-center justify-between mb-4">
-            <h4 class="font-medium">Market Prices</h4>
-            <div class="text-xs text-slate-500">Local mandi</div>
+            <h4 class="font-medium" id="marketTitle">Market Prices</h4>
+            <div class="text-xs text-slate-500" id="marketSubtitle">Local mandi</div>
           </div>
           <div class="space-y-3">
             <div class="flex justify-between items-center">
@@ -864,33 +945,41 @@
             </div>
           </div>
           <div class="market-price-trend mt-3">
-            <div class="market-price-line"></div>
+            <canvas id="priceChart" height="60"></canvas>
           </div>
-          <div class="text-xs text-slate-500 mt-2">Last updated: Today 9:30 AM</div>
+          <div class="text-xs text-slate-500 mt-2" id="marketUpdateLabel">Last updated: <span id="marketUpdateTime">Today 9:30 AM</span></div>
         </div>
 
-     
+        <!-- Government Schemes Widget -->
+        <div class="dashboard-card">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-medium" id="schemesTitle">Government Schemes</h4>
+            <div class="text-xs text-slate-500" id="schemesSubtitle">Latest Updates</div>
+          </div>
+          <div id="schemesContainer" class="space-y-3">
+            <!-- Schemes will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Floating Chat Assistant -->
     <div class="chat-container hidden" id="chatbotContainer">
       <div class="chat-header">
         <div>
-          <div class="font-semibold">AI Kisan Saathi</div>
-          <div class="text-xs opacity-80">Ask me about farming</div>
+          <div class="font-semibold">Chat With FarmGuru </div>
+          <div class="text-xs opacity-80">Ask me about Farming</div>
         </div>
         <div class="flex gap-2">
           <button class="lang-btn active" data-lang="en">EN</button>
           <button class="lang-btn" data-lang="hi">HI</button>
-          <button class="lang-btn" data-lang="ta">ML</button>
+          <button class="lang-btn" data-lang="ml">ML</button>
           <button class="lang-btn" data-lang="te">TE</button>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="message bot-message">
           Hello! I'm your AI farming assistant. How can I help you today?
-        </div>
-        <div class="message bot-message">
-          नमस्ते! मैं आपकी AI कृषि सहायक हूं। आज मैं आपकी कैसे मदद कर सकती हूं?
         </div>
       </div>
       <div class="chat-input-container">
@@ -922,51 +1011,40 @@
         crop: "Tomato",
         name_en: "Tomato Leaf Curl Virus",
         name_hi: "टमाटर लीफ कर्ल वायरस",
-        name_ta: "தக்காளி இலை சுருள் வைரஸ்",
+        name_ml: "തക്കാളി ഇല വളയുന്ന വൈറസ്",
         name_te: "టమాటా ఆకు కర్ల్ వైరస్",
+        name_mr: "टोमॅटो लीफ कर्ल व्हायरस",
         symptoms_en: ["Upward curling of leaves", "Stunted growth", "Yellowing between veins"],
         symptoms_hi: ["पत्तों का ऊपर की ओर मुड़ना", "विकास रुकना", "नसों के बीच पीलापन"],
-        symptoms_ta: ["இலைகள் மேல்நோக்கி சுருள்", "வளர்ச்சி குன்றியது", "நரம்புகளுக்கு இடையே மஞ்சள் நிறமாதல்"],
+        symptoms_ml: ["ഇലകൾ മുകളിലേക്ക് വളയുന്നു", "വളർച്ച കുറയുന്നു", "സിരകൾക്കിടയിൽ മഞ്ഞനിറം"],
         symptoms_te: ["ఆకులు పైకి వంకరతో", "పెరుగుదల నిలిచిపోవడం", "సిరల మధ్య పసుపు రంగు"],
+        symptoms_mr: ["पाने वरच्या दिशेने वाकणे", "वाढ खुंटणे", "शिरांमध्ये पिवळेपणा"],
         treatment_en: ["Spray Neem oil 3ml/L water (repeat after 7 days)", "Remove heavily infected plants", "Use yellow sticky traps to control whitefly vectors"],
         treatment_hi: ["नीम तेल 3ml/लीटर पानी में स्प्रे करें (7 दिन बाद दोहराएँ)", "बहुत संक्रमित पौधों को हटा दें", "व्हाइटफ्लाई नियंत्रण के लिए पीले स्टिकी ट्रैप लगाएँ"],
-        treatment_ta: ["வேப்ப எண்ணெய் 3ml/லி தண்ணீரில் தெளிக்கவும் (7 நாட்களுக்குப் பிறகு மீண்டும்)", "கடுமையாக பாதிக்கப்பட்ட செடிகளை அகற்றவும்", "வெள்ளை ஈ வெக்டர்களை கட்டுப்படுத்த மஞ்சள் ஒட்டும் பொறிகளைப் பயன்படுத்தவும்"],
+        treatment_ml: ["നീം ഓയിൽ 3ml/ലിറ്റർ വെള്ളത്തിൽ സ്പ്രേ ചെയ്യുക (7 ദിവസത്തിന് ശേഷം ആവർത്തിക്കുക)", "കടുത്ത രോഗബാധിത ചെടികൾ നീക്കം ചെയ്യുക", "വൈറ്റ്ഫ്ലൈ നിയന്ത്രണത്തിന് മഞ്ഞ സ്റ്റിക്കി ട്രാപ്പുകൾ ഉപയോഗിക്കുക"],
         treatment_te: ["నీమ్ ఆయిల్ 3ml/లీటరు నీటిలో స్ప్రే చేయండి (7 రోజుల తర్వాత పునరావృతం చేయండి)", "అత్యంత సోకిన మొక్కలను తీసివేయండి", "వైట్ ఫ్లై వెక్టర్స్ నియంత్రణకు పసుపు స్టికీ ట్రాప్లను ఉపయోగించండి"],
-        severity: 65 // 0-100 scale
+        treatment_mr: ["कडुलिंब तेल 3ml/लीटर पाण्यात फवारणी करा (7 दिवसांनी पुन्हा करा)", "जास्त संसर्ग झालेली रोपे काढून टाका", "व्हाइटफ्लाय नियंत्रणासाठी पिवळे स्टिकी ट्रॅप वापरा"],
+        severity: 65
       },
       {
         id: "potato_early_blight",
         crop: "Potato",
         name_en: "Early Blight",
         name_hi: "अर्ली ब्लाइट",
-        name_ta: "ஆர்லி பிளைட்",
+        name_ml: "ആദ്യകാല ബ്ലൈറ്റ്",
         name_te: "అర్లీ బ్లైట్",
+        name_mr: "अर्ली ब्लाइट",
         symptoms_en: ["Dark concentric rings on leaves", "Brown lesions"],
         symptoms_hi: ["पत्तों पर गोल-गोल काले छल्ले", "भूरे धब्बे"],
-        symptoms_ta: ["இலைகளில் கருமையான குவிந்த வளையங்கள்", "பழுப்பு காயங்கள்"],
+        symptoms_ml: ["ഇലകളിൽ ഇരുണ്ട കേന്ദ്രീകൃത വളയങ്ങൾ", "തവിട്ടു നിറത്തിലുള്ള പുണ്ണുകൾ"],
         symptoms_te: ["ఆకులపై నల్లని కేంద్రిక వలయాలు", "బ్రౌన్ లెషన్స్"],
+        symptoms_mr: ["पान्यावर गडद केंद्रित रिंग", "तपकिरी फोड"],
         treatment_en: ["Spray Mancozeb 2g/L or Chlorothalonil as per label", "Remove debris; follow 3-year crop rotation"],
         treatment_hi: ["मैनकोजेब 2g/लीटर या क्लोरोथालोनिल लेबल अनुसार स्प्रे करें", "कचरा हटाएँ; 3 साल की फसल चक्र अपनाएँ"],
-        treatment_ta: ["லேபலின் படி மான்கோசெப் 2g/லி அல்லது குளோரோத்தலோனில் தெளிக்கவும்", "குப்பைகளை அகற்றவும்; 3-வருட பயிர் சுழற்சியைப் பின்பற்றவும்"],
+        treatment_ml: ["ലേബൽ പ്രകാരം മാൻകോസെബ് 2g/ലിറ്റർ അല്ലെങ്കിൽ ക്ലോറോത്തലോണിൽ സ്പ്രേ ചെയ്യുക", "ചവറ് നീക്കം ചെയ്യുക; 3 വർഷത്തെ കൃഷി ചക്രം പാലിക്കുക"],
         treatment_te: ["లేబల్ ప్రకారం మ్యాన్కోజెబ్ 2g/లీటరు లేదా క్లోరోతలోనిల్ స్ప్రే చేయండి", "చెత్తను తీసివేయండి; 3-సంవత్సరాల పంట భ్రమణాన్ని అనుసరించండి"],
+        treatment_mr: ["मॅन्कोझेब 2g/लीटर किंवा क्लोरोथालोनिल लेबल प्रमाणे फवारणी करा", "कचरा काढून टाका; 3 वर्षांचे पीक चक्र पाळा"],
         severity: 45
-      },
-      {
-        id: "rice_blast",
-        crop: "Rice",
-        name_en: "Rice Blast",
-        name_hi: "ब्लास्ट रोग",
-        name_ta: "ரைஸ் பிளாஸ்ட்",
-        name_te: "రైస్ బ్లాస్ట్",
-        symptoms_en: ["Spindle-shaped lesions on leaves", "Grey centers with brown borders"],
-        symptoms_hi: ["पत्तों पर भाले जैसे धब्बे", "ग्रे केंद्र और भूरे किनारे"],
-        symptoms_ta: ["இலைகளில் நூற்றிழை வடிவ காயங்கள்", "பழுப்பு எல்லைகளுடன் சாம்பல் மையங்கள்"],
-        symptoms_te: ["ఆకులపై స్పిండిల్- ఆకారపు ఘాతలు", "బ్రౌన్ సరిహద్దులతో గ్రే సెంటర్లు"],
-        treatment_en: ["Maintain field drainage; avoid excess nitrogen", "Spray Tricyclazole 0.6g/L"],
-        treatment_hi: ["खेत की निकास व्यवस्था रखें; नाइट्रोजन अधिक न दें", "ट्राइसाइक्लाजोल 0.6g/लीटर स्प्रे करें"],
-        treatment_ta: ["வயல் வடிகால் பராமரிக்க; அதிக நைட்ரஜன் தவிர்க்க", "ட்ரைசைக்ளசோல் 0.6g/லி தெளிக்கவும்"],
-        treatment_te: ["ఫీల్డ్ డ్రైనేజీని నిర్వహించండి; అధిక నైట్రోజన్ నివారించండి", "ట్రైసైక్లాజోల్ 0.6g/లీటరు స్ప్రే చేయండి"],
-        severity: 75
       }
     ];
 
@@ -979,120 +1057,143 @@
     // Chatbot knowledge base
     const CHATBOT_KB = {
       en: {
-        greeting: [
-          "Hello! I'm your AI farming assistant. How can I help you today?",
-          "Hi there! I'm here to help with your farming questions. What would you like to know?",
-          "Namaste! I'm your digital kisan mitra. How can I assist you today?"
-        ],
-        farewell: [
-          "Goodbye! Feel free to come back with more questions.",
-          "See you later! Happy farming!",
-          "Take care! May your fields be prosperous."
-        ],
-        thanks: [
-          "You're welcome! Happy to help a fellow farmer.",
-          "My pleasure! Don't hesitate to ask if you need more help.",
-          "Anytime! That's what I'm here for."
-        ],
+        greeting: ["Hello! I'm your AI farming assistant. How can I help you today?"],
+        farewell: ["Goodbye! Feel free to come back with more questions."],
+        thanks: ["You're welcome! Happy to help a fellow farmer."],
         questions: {
-          "organic pest control": "For organic pest control, try neem oil spray (5ml per liter), garlic-chili spray, or introducing beneficial insects like ladybugs. Crop rotation also helps prevent pest buildup.",
-          "best time to water plants": "The best time to water plants is early morning before 10am. This allows water to reach roots before evaporating and prevents fungal diseases that can occur with evening watering.",
-          "tomato fertilizer schedule": "Tomatoes need fertilizer at planting time (balanced 10-10-10), when first fruits appear (high phosphorus), and every 4-6 weeks during growing season with balanced fertilizer.",
-          "how to improve soil health": "Improve soil health by adding organic matter like compost, practicing crop rotation, using cover crops, reducing tillage, and maintaining proper pH levels.",
-          "common rice diseases": "Common rice diseases include blast (leaf and neck), bacterial leaf blight, sheath blight, brown spot, and tungro virus. Using resistant varieties and proper water management can help prevent these."
+          "organic pest control": "For organic pest control, try neem oil spray (5ml per liter), garlic-chili spray, or introducing beneficial insects like ladybugs.",
+          "best time to water plants": "The best time to water plants is early morning before 10am.",
+          "tomato fertilizer schedule": "Tomatoes need fertilizer at planting time, when first fruits appear, and every 4-6 weeks during growing season."
         },
-        fallback: [
-          "I'm not sure about that. Could you try asking in a different way?",
-          "That's beyond my knowledge currently. Try asking about crop diseases, pest control, or farming practices.",
-          "I'm still learning about that aspect of farming. Please ask me about common agricultural topics."
-        ]
+        fallback: ["I'm not sure about that. Could you try asking in a different way?"]
       },
       hi: {
-        greeting: [
-          "नमस्ते! मैं आपकी AI कृषि सहायक हूं। आज मैं आपकी कैसे मदद कर सकती हूं?",
-          "हैलो! मैं आपके कृषि संबंधी सवालों में मदद के लिए यहां हूं। आप क्या जानना चाहेंगे?",
-          "प्रणाम! मैं आपका डिजिटल किसान मित्र हूं। आज मैं आपकी किस तरह सहायता कर सकता हूं?"
-        ],
-        farewell: [
-          "अलविदा! जब भी更多的 सवाल हों, पूछने में संकोच न करें।",
-          "फिर मिलेंगे! खुशहाल खेती करें!",
-          "ध्यान रखना! आपके खेत समृद्ध हों।"
-        ],
-        thanks: [
-          "आपका स्वागत है! एक साथी किसान की मदद करके खुशी हुई।",
-          "मेरी खुशी! यदि आपको अधिक帮助 चाहिए तो hesitate न करें।",
-          "कभी भी! मैं इसी के लिए यहां हूं।"
-        ],
+        greeting: ["नमस्ते! मैं आपकी AI कृषि सहायक हूं। आज मैं आपकी कैसे मदद कर सकती हूं?"],
+        farewell: ["अलविदा! जब भी सवाल हों, पूछने में संकोच न करें।"],
+        thanks: ["आपका स्वागत है! एक साथी किसान की मदद करके खुशी हुई।"],
         questions: {
-          "जैविक कीट नियंत्रण": "जैविक कीट नियंत्रण के लिए, नीम का तेल स्प्रे (5ml प्रति लीटर), लहसुन-मिर्च का स्प्रे, या लेडीबग जैसे लाभकारी कीड़ों का उपयोग करें। फसल चक्रण भी कीटों के जमाव को रोकने में मदद करता है।",
-          "पौधों को पानी देने का सबसे अच्छा समय": "पौधों को पानी देने का सबसे अच्छा समय सुबह 10 बजे से पहले का है। इससे पानी वाष्पित होने से पहले जड़ों तक पहुंच जाता है और शाम को पानी देने से होने वाली फंगल बीमारियों को रोकता है।",
-          "टमाटर की उर्वरक अनुसूची": "टमाटर को रोपण के समय (संतुलित 10-10-10), जब पहले फल दिखाई देते हैं (उच्च फास्फोरस), और बढ़ते मौसम के दौरान हर 4-6 सप्ताह में संतुलित उर्वरक की आवश्यकता होती है।",
-          "मृदा स्वास्थ्य कैसे सुधारें": "मृदा स्वास्थ्य में सुधार के लिए कम्पोस्ट जैसे कार्बनिक पदार्थ डालें, फसल चक्रण का अभ्यास करें, कवर फसलों का उपयोग करें, जुताई कम करें और उचित pH स्तर बनाए रखें।",
-          "चावल की सामान्य बीमारियां": "चावल की सामान्य बीमारियों में ब्लास्ट (पत्ती और गर्दन), जीवाणुजनित पत्ती झुलसा, शीथ ब्लाइट, ब्राउन स्पॉट और टंगरो वायरस शामिल हैं। प्रतिरोधी किस्मों का उपयोग और उचित जल प्रबंधन इन्हें रोकने में मदद कर सकता है।"
+          "organic pest control": "जैविक कीट नियंत्रण के लिए, नीम का तेल स्प्रे (5ml प्रति लीटर) का उपयोग करें।",
+          "best time to water plants": "पौधों को पानी देने का सबसे अच्छा समय सुबह 10 बजे से पहले का है।"
         },
-        fallback: [
-          "मुझे इस बारे में यकीन नहीं है। क्या आप इसे अलग तरीके से पूछने की कोशिश कर सकते हैं?",
-          "यह currently मेरी जानकारी से beyond है। फसल रोगों, कीट नियंत्रण या कृषि पद्धतियों के बारे में पूछने का प्रयास करें।",
-          "मैं अभी भी कृषि के उस पहलू के बारे में सीख रहा हूं। कृपया मुझे सामान्य कृषि विषयों के बारे में पूछें।"
-        ]
+        fallback: ["मुझे इस बारे में यकीन नहीं है। क्या आप इसे अलग तरीके से पूछने की कोशिश कर सकते हैं?"]
+      }
+    };
+
+    // Language translations for UI elements
+    const UI_TRANSLATIONS = {
+      en: {
+        appTitle: "FarmGuru AI",
+        appSubtitle: "Intelligent Crop Advisory System · Hackathon Prototype",
+        shareText: "Share",
+        detectionLabel: "Detections Today",
+        alertsLabel: "Disease Alerts",
+        weatherLabel: "Weather Index",
+        marketLabel: "Market Trends",
+        leftTitle: "Crop Health Analysis",
+        uploadText: "Click to upload or drag & drop",
+        uploadNote: "Multiple images supported (max 5MB total, 2MB each)",
+        uploadBtnText: "Upload Image",
+        sampleBtnText: "Use Sample",
+        cropTypeLabel: "Crop Type",
+        confidenceLabel: "Confidence threshold:",
+        consentLabel: "Allow anonymous learning",
+        detectBtnText: "Detect Issues",
+        weatherTitle: "Weather Forecast",
+        sessionTitle: "Session Stats",
+        detectionCountLabel: "Detections",
+        flagsLabel: "Flags",
+        historyLabel: "History",
+        exportBtnText: "Export CSV",
+        clearBtnText: "Clear",
+        resultsHeading: "Result & Advisory",
+        speakBtnText: "Speak",
+        severityLabel: "Disease Severity",
+        advisoryTabText: "Advisory",
+        symptomsTabText: "Symptoms",
+        storesTabText: "Nearby Stores",
+        pesticideTabText: "Spray Calculator",
+        pesticideCalcText: "Calculate required pesticide quantity for your field",
+        fieldAreaLabel: "Field Area (acres)",
+        dosageLabel: "Recommended dosage",
+        pesticideNeededText: "You will need approximately:",
+        pesticideNote: "For spraying at 200L/acre",
+        calculateBtnText: "Calculate",
+        pdfBtnText: "Download PDF",
+        flagBtnText: "Flag wrong detection",
+        calendarTitle: "Crop Calendar",
+        calendarNote: "Click on dates to mark important events",
+        advancedTitle: "Advanced",
+        advancedSubtitle: "Experimental features",
+        darkModeText: "Dark UI",
+        shareAdvisoryText: "Share Advisory",
+        saveImageText: "Save Image",
+        analyzeBtnText: "Generate Report",
+        apiSimText: "Simulate Upload",
+        analyticsTitle: "Analytics",
+        avgConfLabel: "Avg Confidence",
+        uniqueCropsLabel: "Unique Crops",
+        marketTitle: "Market Prices",
+        marketSubtitle: "Local mandi",
+        marketUpdateLabel: "Last updated:",
+        schemesTitle: "Government Schemes",
+        schemesSubtitle: "Latest Updates"
       },
-      ta: {
-        greeting: [
-          "வணக்கம்! நான் உங்கள் AI விவசாய உதவியாளர். இன்று நான் உங்களுக்கு எவ்வாறு உதவலாம்?",
-          "வணக்கம்! உங்கள் விவசாய கேள்விகளுக்கு உதவ நான் இங்கே இருக்கிறேன். நீங்கள் என்ன தெரிந்து கொள்ள விரும்புகிறீர்கள்?",
-          "நமஸ்காரம்! நான் உங்கள் டிஜிட்டல் விவசாய நண்பன். இன்று நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?"
-        ],
-        farewell: [
-          "சென்று வருகிறேன்! மேலும் கேள்விகள் இருந்தால் தயங்காமல் கேளுங்கள்.",
-          "பிறகு சந்திப்போம்! மகிழ்ச்சியான விவசாயம்!",
-          "கவனித்துக் கொள்ளுங்கள்! உங்கள் வயல்கள் வளமுடன் விளங்கட்டும்."
-        ],
-        thanks: [
-          "தயை செய்து! ஒரு விவசாயியை உதவுவதில் மகிழ்ச்சி.",
-          "எனது மகிழ்ச்சி! உங்களுக்கு மேலும் உதவி தேவைப்பட்டால் தயங்காமல் கேளுங்கள்.",
-          "எப்போது வேண்டுமானாலும்! அதற்காகத்தான் நான் இங்கே இருக்கிறேன்."
-        ],
-        questions: {
-          "கரிம பூச்சி கட்டுப்பாடு": "கரிம பூச்சி கட்டுப்பாட்டிற்கு, வேப்ப எண்ணெய் தெளிப்பு (லிட்டருக்கு 5ml), பூண்டு-மிளகாய் தெளிப்பு, அல்லது லேடிபக்குகள் போன்ற பயனுள்ள பூச்சிகளை அறிமுகப்படுத்தவும். பயிர் சுழற்சியும் பூச்சிகளின் குவிப்பை தடுக்க உதவுகிறது.",
-          "தாவரங்களுக்கு நீர் ஊட்டுவதற்கான சிறந்த நேரம்": "தாவரங்களுக்கு நீர் ஊட்டுவதற்கான சிறந்த நேரம் காலை 10 மணிக்கு முன்பு. இது நீர் ஆவியாகும் முன் வேர்களை அடைய அனுமதிக்கிறது மற்றும் மாலை நீர்ப்பாசனத்தால் ஏற்படக்கூடிய பூஞ்சை நோய்களை தடுக்கிறது.",
-          "தக்காளி உர அட்டவணை": "தக்காளிக்கு நடும் நேரத்தில் (சமச்சீர் 10-10-10), முதல் பழங்கள் தோன்றும் போது (அதிக பாஸ்பரஸ்), மற்றும் வளரும் பருவத்த期间每 4-6 வாரங்களுக்கு சமச்சீர் உரம் தேவைப்படுகிறது.",
-          "மண் ஆரோக்கியத்தை எவ்வாறு மேம்படுத்துவது": "கூட்டு போன்ற கரிமப் பொருட்களைச் சேர்ப்பதன் மூலம் மண்ணின் ஆரோக்கியத்தை மேம்படுத்தவும், பயிர் சுழற்சியைப் பயிற்சி செய்யவும், கவர் பயிர்களைப் பயன்படுத்தவும், உழவைக் குறைக்கவும் மற்றும் சரியான pH அளவை பராமரிக்கவும்.",
-          "பொது நெல் நோய்கள்": "பொது நெல் நோய்களில் பிளாஸ்ட் (இலை மற்றும் கழுத்து), பாக்டீரியா இலை ப்ளைட், ஷீத் ப்ளைட், பழுப்பு புள்ளி மற்றும் துங்ரோ வைரஸ் ஆகியவை அடங்கும். எதிர்ப்பு வகைகளைப் பயன்படுத்துவதும் மற்றும் சரியான நீர் மேலாண்மையும் இவற்றைத் தடுக்க உதவும்."
-        },
-        fallback: [
-          "அதைப் பற்றி எனக்குத் தெரியாது. வித்தியாசமான வழியில் கேட்க முயற்சிக்கலாமா?",
-          "அது தற்போது எனது அறிவைத் தாண்டியது. பயிர் நோய்கள், பூச்சி கட்டுப்பாடு அல்லது விவசாய நடைமுறைகள் பற்றி கேட்க முயற்சிக்கவும்.",
-          "நான் இன்னும் விவசாயத்தின் அந்த அம்சத்தைப் பற்றி கற்றுக் கொண்டிருக்கிறேன். தயவு செய்து பொதுவான விவசாய தலைப்புகளைப் பற்றி கேளுங்கள்."
-        ]
-      },
-      te: {
-        greeting: [
-          "నమస్కారం! నేను మీ AI వ్యవసాయ సహాయకుడిని. ఈరోజు నేను మీకు ఎలా సహాయపడగలను?",
-          "హలో! మీ వ్యవసాయ ప్రశ్నలకు సహాయం చేయడానికి నేను ఇక్కడ ఉన్నాను. మీరు ఏమి తెలుసుకోవాలనుకుంటున్నారు?",
-          "నమస్తే! నేను మీ డిజిటల్ రైతు మిత్రుడిని. ఈరోజు నేను మీకు ఎలా సహాయం చేయగలను?"
-        ],
-        farewell: [
-          "వీడ్కోలు! మరిన్ని ప్రశ్నలు ఉంటే తిరిగి వచ్చేందుకు సంకోచించకండి.",
-          "తర్వాత కలుద్దాం! సంతోషకరమైన వ్యవసాయం!",
-          "జాగ్రత్తగా ఉండండి! మీ పొలాలు సమృద్ధిగా ఉండుగాక."
-        ],
-        thanks: [
-          "మీరు స్వాగతం! ఒక తోటి రైతుకు సహాయం చేయడం సంతోషంగా ఉంది.",
-          "నా సంతోషం! మీకు మరింత సహాయం కావాలంటే సంకోచించకండి.",
-          "ఎప్పుడు అయినా! దాని కోసమే నేను ఇక్కడ ఉన్నాను."
-        ],
-        questions: {
-          "సేంద్రీయ కీటక నియంత్రణ": "సేంద్రీయ కీటక నియంత్రణ కోసం, నీమ్ ఆయిల్ స్ప్రే (లీటరుకు 5ml), వెల్లుల్లి-మిరప స్ప్రే, లేదా లేడీబగ్స్ వంటి ప్రయోజనకరమైన కీటకాలను పరిచయం చేయండి. పంట భ్రమణం కీటకాల నిర్మాణాన్ని నిరోధించడంలో కూడా సహాయపడుతుంది.",
-          "మొక్కలకు నీరు పోయడానికి ఉత్తమ సమయం": "మొక్కలకు నీరు పోయడానికి ఉత్తమ సమయం ఉదయం 10 గంటలకు ముందు. ఇది నీరు బాష్పీభవించే ముందు వేర్లను చేరుకోవడానికి అనుమతిస్తుంది మరియు సాయంత్రం నీరు పోయడం వలన కలిగే ఫంగల్ రోగాలను నిరోధిస్తుంది.",
-          "టమాటా ఎరువు షెడ్యూల్": "టమాటాకు నాటే సమయంలో (సమతుల్య 10-10-10), మొదటి పండ్లు కనిపించినప్పుడు (ఎక్కువ భాస్వరం), మరియు పెరుగుతున్న సీజన్期间每 4-6 వారాలకు సమతుల్య ఎరువు అవసరం.",
-          "నేల ఆరోగ్యాన్ని ఎలా మెరుగుపరచాలి": "కంపోస్ట్ వంటి సేంద్రీయ పదార్థాలను జోడించడం ద్వారా నేల ఆరోగ్యాన్ని మెరుగుపరచండి, పంట భ్రమణం అభ్యసించండి, కవర్ పంటలను ఉపయోగించండి, వ్యవసాయం తగ్గించండి మరియు సరైన pH స్థాయిలను నిర్వహించండి.",
-          "సాధారణ బియ్యం రోగాలు": "సాధారణ బియ్యం రోగాలలో బ్లాస్ట్ (ఆకు మరియు మెడ), బాక్టీరియా ఆకు బ్లైట్, షీత్ బ్లైట్, బ్రౌన్ స్పాట్ మరియు టుంగ్రో వైరస్ ఉన్నాయి. నిరోధక రకాలను ఉపయోగించడం మరియు సరైన నీటి నిర్వహణ ఇవి నివారించడంలో సహాయపడతాయి."
-        },
-        fallback: [
-          "దాని గురించి నాకు ఖచ్చితంగా తెలియదు. మీరు దీన్ని వేరే విధంగా అడగడానికి ప్రయత్నించగలరా?",
-          "ఇది ప్రస్తుతం నా జ్ఞానానికి మించినది. పంట రోగాలు, కీటక నియంత్రణ లేదా వ్యవసాయ పద్ధతుల గురించి అడగడానికి ప్రయత్నించండి.",
-          "నేను ఇంకా వ్యవసాయం యొక్క ఆ అంశం గురించి నేర్చుకుంటున్నాను. దయచేసి సాధారణ వ్యవసాయ విషయాల గురించి అడగండి."
-        ]
+      hi: {
+        appTitle: "फार्मगुरु AI",
+        appSubtitle: "बुद्धिमान फसल सलाह प्रणाली · हैकाथॉन प्रोटोटाइप",
+        shareText: "साझा करें",
+        detectionLabel: "आज की पहचान",
+        alertsLabel: "रोग अलर्ट",
+        weatherLabel: "मौसम सूचकांक",
+        marketLabel: "बाजार रुझान",
+        leftTitle: "फसल स्वास्थ्य विश्लेषण",
+        uploadText: "अपलोड करने के लिए क्लिक करें या खींचें और छोड़ें",
+        uploadNote: "कई चित्र समर्थित (अधिकतम 5MB कुल, 2MB प्रत्येक)",
+        uploadBtnText: "चित्र अपलोड करें",
+        sampleBtnText: "नमूना उपयोग करें",
+        cropTypeLabel: "फसल प्रकार",
+        confidenceLabel: "विश्वास सीमा:",
+        consentLabel: "अनामिक शिक्षण की अनुमति दें",
+        detectBtnText: "समस्याएं पहचानें",
+        weatherTitle: "मौसम पूर्वानुमान",
+        sessionTitle: "सत्र आंकड़े",
+        detectionCountLabel: "पहचान",
+        flagsLabel: "ध्वजांकित",
+        historyLabel: "इतिहास",
+        exportBtnText: "CSV निर्यात करें",
+        clearBtnText: "साफ करें",
+        resultsHeading: "परिणाम और सलाह",
+        speakBtnText: "बोलें",
+        severityLabel: "रोग गंभीरता",
+        advisoryTabText: "सलाह",
+        symptomsTabText: "लक्षण",
+        storesTabText: "निकटतम स्टोर",
+        pesticideTabText: "स्प्रे कैलकुलेटर",
+        pesticideCalcText: "अपने खेत के लिए आवश्यक कीटनाशक मात्रा की गणना करें",
+        fieldAreaLabel: "खेत का क्षेत्रफल (एकड़)",
+        dosageLabel: "अनुशंसित खुराक",
+        pesticideNeededText: "आपको लगभग चाहिए:",
+        pesticideNote: "200L/एकड़ की दर से छिड़काव के लिए",
+        calculateBtnText: "गणना करें",
+        pdfBtnText: "PDF डाउनलोड करें",
+        flagBtnText: "गलत पहचान को ध्वजांकित करें",
+        calendarTitle: "फसल कैलेंडर",
+        calendarNote: "महत्वपूर्ण घटनाओं को चिह्नित करने के लिए तिथियों पर क्लिक करें",
+        advancedTitle: "उन्नत",
+        advancedSubtitle: "प्रायोगिक सुविधाएं",
+        darkModeText: "डार्क UI",
+        shareAdvisoryText: "सलाह साझा करें",
+        saveImageText: "चित्र सहेजें",
+        analyzeBtnText: "रिपोर्ट जनरेट करें",
+        apiSimText: "अपलोड सिम्युलेट करें",
+        analyticsTitle: "विश्लेषिकी",
+        avgConfLabel: "औसत विश्वास",
+        uniqueCropsLabel: "अद्वितीय फसलें",
+        marketTitle: "बाजार मूल्य",
+        marketSubtitle: "स्थानीय मंडी",
+        marketUpdateLabel: "अंतिम अपडेट:",
+        schemesTitle: "सरकारी योजनाएं",
+        schemesSubtitle: "नवीनतम अपडेट"
       }
     };
 
@@ -1102,7 +1203,6 @@
     const btnSample = document.getElementById("btnSample");
     const previewWrap = document.getElementById("previewWrap");
     const previewPlaceholder = document.getElementById("previewPlaceholder");
-
     const btnDetect = document.getElementById("btnDetect");
     const cropInput = document.getElementById("cropInput");
     const confRange = document.getElementById("confRange");
@@ -1111,7 +1211,6 @@
     const progressBar = document.getElementById("progressBar");
     const progressPercent = document.getElementById("progressPercent");
     const progressText = document.getElementById("progressText");
-
     const resultCard = document.getElementById("resultCard");
     const detectedName = document.getElementById("detectedName");
     const tagCrop = document.getElementById("tagCrop");
@@ -1122,31 +1221,12 @@
     const mapEl = document.getElementById("map");
     const btnSpeak = document.getElementById("btnSpeak");
     const langSelect = document.getElementById("langSelect");
-    const onlineDot = document.getElementById("onlineDot");
-    const onlineText = document.getElementById("onlineText");
-
     const statDetections = document.getElementById("statDetections");
     const statFlags = document.getElementById("statFlags");
     const historyList = document.getElementById("historyList");
-    const btnExportCSV = document.getElementById("btnExportCSV");
-    const btnClearHistory = document.getElementById("btnClearHistory");
-
     const diseaseChartCtx = document.getElementById("diseaseChart");
     const avgConf = document.getElementById("avgConf");
     const uniqueCrops = document.getElementById("uniqueCrops");
-
-    const notesEl = document.getElementById("notes");
-    const btnPdf = document.getElementById("btnPdf");
-    const btnFlag = document.getElementById("btnFlag");
-    const btnShare = document.getElementById("shareBtn");
-
-    const btnDark = document.getElementById("darkToggle");
-    const btnSaveImage = document.getElementById("btnSaveImage");
-    const btnAnalyze = document.getElementById("btnAnalyze");
-    const btnApiSim = document.getElementById("btnApiSim");
-    const btnShareAdvisory = document.getElementById("btnShareAdvisory");
-
-    // NEW: References for added features
     const severityFill = document.getElementById("severityFill");
     const severityValue = document.getElementById("severityValue");
     const fieldArea = document.getElementById("fieldArea");
@@ -1162,7 +1242,6 @@
     const voiceBtn = document.getElementById("voiceBtn");
     const sendBtn = document.getElementById("sendBtn");
     const langButtons = document.querySelectorAll(".lang-btn");
-    const weatherContainer = document.getElementById("weatherContainer");
     const currentTemp = document.getElementById("currentTemp");
     const weatherCondition = document.getElementById("weatherCondition");
     const weatherHumidity = document.getElementById("weatherHumidity");
@@ -1172,43 +1251,67 @@
     const notificationIcon = document.getElementById("notificationIcon");
     const notificationTitle = document.getElementById("notificationTitle");
     const notificationMessage = document.getElementById("notificationMessage");
+    const schemesContainer = document.getElementById("schemesContainer");
+    const marketUpdateTime = document.getElementById("marketUpdateTime");
+    const priceChartCtx = document.getElementById("priceChart");
 
-    // state
-    let currentImage = null;
+    // State variables
+    let currentImages = [];
     let currentResult = null;
     let session = { detections: [], flags: 0 };
     let leafletMap = null;
     let diseaseChart = null;
+    let priceChart = null;
     let chatLang = "en";
     let isListening = false;
     let recognition = null;
 
+    // Market data for real-time trends
+    const marketData = {
+      crops: [
+        { name: "Tomato", price: 1800, change: 12, trend: "up" },
+        { name: "Potato", price: 1200, change: -5, trend: "down" },
+        { name: "Rice", price: 2500, change: 3, trend: "up" }
+      ],
+      history: []
+    };
+
+    // Government schemes data
+    const GOVERNMENT_SCHEMES = [
+      {
+        title: "PM-KISAN Scheme",
+        description: "Financial assistance of ₹6,000 per year to all farmer families.",
+        deadline: "31-Dec-2024",
+        category: "Financial"
+      },
+      {
+        title: "Soil Health Card Scheme",
+        description: "Get your soil tested and receive recommendations for nutrients.",
+        deadline: "Ongoing",
+        category: "Technical"
+      },
+      {
+        title: "Pradhan Mantri Fasal Bima Yojana",
+        description: "Crop insurance against natural calamities at low premium.",
+        deadline: "30-Nov-2024",
+        category: "Insurance"
+      }
+    ];
+
     // Initialize the application
     function init() {
-      // Set up event listeners
       setupEventListeners();
-      
-      // Initialize UI components
       updateOnline();
       confLabel.textContent = confRange.value + "%";
       confRange.addEventListener("input", () => confLabel.textContent = confRange.value + "%");
-      
-      // Load session data
       loadSession();
-      
-      // Initialize analytics
       updateAnalytics();
-      
-      // Generate calendar
       generateCalendar();
-      
-      // Update weather
       updateWeather();
-      
-      // Initialize chatbot
       initChatbot();
+      initGovernmentSchemes();
+      initMarketTrends();
       
-      // Pre-seed a sample detection for demo purposes
       if (!session.detections.length) {
         const sample = DISEASE_DB[0];
         session.detections.push({ 
@@ -1223,967 +1326,1124 @@
         updateAnalytics();
       }
       
-      // Show welcome notification
       showNotification("Welcome to FarmGuru AI", "Your intelligent crop advisory system is ready!", "success");
     }
 
-    // Set up all event listeners
-    function setupEventListeners() {
-      // File upload
-      btnUpload.addEventListener("click", () => fileInput.click());
-      fileInput.addEventListener("change", handleFileUpload);
+    // === LANGUAGE SWITCHING FUNCTIONALITY ===
+    function updateUILanguage(lang) {
+      const translations = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS.en;
       
-      // Drag and drop for image
-      previewWrap.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        previewWrap.classList.add("border-emerald-500", "bg-green-50");
-      });
+      // Update all UI elements with translations
+      document.getElementById('appTitle').textContent = translations.appTitle;
+      document.getElementById('appSubtitle').textContent = translations.appSubtitle;
+      document.getElementById('shareText').textContent = translations.shareText;
+      document.getElementById('detectionLabel').textContent = translations.detectionLabel;
+      document.getElementById('alertsLabel').textContent = translations.alertsLabel;
+      document.getElementById('weatherLabel').textContent = translations.weatherLabel;
+      document.getElementById('marketLabel').textContent = translations.marketLabel;
+      document.getElementById('leftTitle').textContent = translations.leftTitle;
+      document.getElementById('uploadText').textContent = translations.uploadText;
+      document.getElementById('uploadNote').textContent = translations.uploadNote;
+      document.getElementById('uploadBtnText').textContent = translations.uploadBtnText;
+      document.getElementById('sampleBtnText').textContent = translations.sampleBtnText;
+      document.getElementById('cropTypeLabel').textContent = translations.cropTypeLabel;
+      document.getElementById('confidenceLabel').innerHTML = translations.confidenceLabel;
+      document.getElementById('consentLabel').textContent = translations.consentLabel;
+      document.getElementById('detectBtnText').textContent = translations.detectBtnText;
+      document.getElementById('weatherTitle').textContent = translations.weatherTitle;
+      document.getElementById('sessionTitle').textContent = translations.sessionTitle;
+      document.getElementById('detectionCountLabel').textContent = translations.detectionCountLabel;
+      document.getElementById('flagsLabel').textContent = translations.flagsLabel;
+      document.getElementById('historyLabel').textContent = translations.historyLabel;
+      document.getElementById('exportBtnText').textContent = translations.exportBtnText;
+      document.getElementById('clearBtnText').textContent = translations.clearBtnText;
+      document.getElementById('resultsHeading').textContent = translations.resultsHeading;
+      document.getElementById('speakBtnText').textContent = translations.speakBtnText;
+      document.getElementById('severityLabel').textContent = translations.severityLabel;
+      document.getElementById('advisoryTabText').textContent = translations.advisoryTabText;
+      document.getElementById('symptomsTabText').textContent = translations.symptomsTabText;
+      document.getElementById('storesTabText').textContent = translations.storesTabText;
+      document.getElementById('pesticideTabText').textContent = translations.pesticideTabText;
+      document.getElementById('pesticideCalcText').textContent = translations.pesticideCalcText;
+      document.getElementById('fieldAreaLabel').textContent = translations.fieldAreaLabel;
+      document.getElementById('dosageLabel').textContent = translations.dosageLabel;
+      document.getElementById('pesticideNeededText').textContent = translations.pesticideNeededText;
+      document.getElementById('pesticideNote').textContent = translations.pesticideNote;
+      document.getElementById('calculateBtnText').textContent = translations.calculateBtnText;
+      document.getElementById('pdfBtnText').textContent = translations.pdfBtnText;
+      document.getElementById('flagBtnText').textContent = translations.flagBtnText;
+      document.getElementById('calendarTitle').textContent = translations.calendarTitle;
+      document.getElementById('calendarNote').textContent = translations.calendarNote;
+      document.getElementById('advancedTitle').textContent = translations.advancedTitle;
+      document.getElementById('advancedSubtitle').textContent = translations.advancedSubtitle;
+      document.getElementById('darkModeText').textContent = translations.darkModeText;
+      document.getElementById('shareAdvisoryText').textContent = translations.shareAdvisoryText;
+      document.getElementById('saveImageText').textContent = translations.saveImageText;
+      document.getElementById('analyzeBtnText').textContent = translations.analyzeBtnText;
+      document.getElementById('apiSimText').textContent = translations.apiSimText;
+      document.getElementById('analyticsTitle').textContent = translations.analyticsTitle;
+      document.getElementById('avgConfLabel').textContent = translations.avgConfLabel;
+      document.getElementById('uniqueCropsLabel').textContent = translations.uniqueCropsLabel;
+      document.getElementById('marketTitle').textContent = translations.marketTitle;
+      document.getElementById('marketSubtitle').textContent = translations.marketSubtitle;
+      document.getElementById('marketUpdateLabel').innerHTML = translations.marketUpdateLabel;
+      document.getElementById('schemesTitle').textContent = translations.schemesTitle;
+      document.getElementById('schemesSubtitle').textContent = translations.schemesSubtitle;
       
-      previewWrap.addEventListener("dragleave", () => {
-        previewWrap.classList.remove("border-emerald-500", "bg-green-50");
-      });
+      // Update result card if there's a current result
+      if (currentResult) {
+        displayDetectionResult();
+      }
+    }
+
+    // === MULTI-IMAGE UPLOAD FUNCTIONALITY ===
+    function handleFileUpload(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
       
-      previewWrap.addEventListener("drop", (e) => {
-        e.preventDefault();
-        previewWrap.classList.remove("border-emerald-500", "bg-green-50");
-        
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          fileInput.files = e.dataTransfer.files;
-          handleFileUpload({ target: fileInput });
+      const totalSize = Array.from(files).reduce((total, file) => total + file.size, 0);
+      const maxSize = 5 * 1024 * 1024;
+      
+      if (totalSize > maxSize) {
+        showNotification("Size limit exceeded", `Total size ${(totalSize/1024/1024).toFixed(2)}MB exceeds 5MB limit`, "error");
+        e.target.value = "";
+        return;
+      }
+      
+      for (let file of files) {
+        if (file.size > 2 * 1024 * 1024) {
+          showNotification("File too large", `${file.name} is ${(file.size/1024/1024).toFixed(2)}MB (max 2MB each)`, "error");
+          e.target.value = "";
+          return;
         }
+      }
+      
+      previewPlaceholder.classList.add("hidden");
+      previewWrap.innerHTML = "";
+      
+      const imageGrid = document.createElement("div");
+      imageGrid.className = "image-grid";
+      
+      currentImages = [];
+      
+      Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentImages.push({
+            src: e.target.result,
+            name: file.name,
+            size: file.size,
+            type: file.type
+          });
+          
+          const imgContainer = document.createElement("div");
+          imgContainer.className = "image-item";
+          
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.alt = `Uploaded crop image ${index + 1}`;
+          
+          img.addEventListener('click', () => {
+            showImageModal(e.target.result, file.name);
+          });
+          
+          const fileInfo = document.createElement("div");
+          fileInfo.className = "image-info";
+          fileInfo.innerHTML = `${file.name}<br>${(file.size/1024).toFixed(1)}KB`;
+          
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity";
+          removeBtn.innerHTML = "×";
+          removeBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            currentImages.splice(index, 1);
+            imgContainer.remove();
+            updateFileSummary();
+            if (currentImages.length === 0) {
+              previewPlaceholder.classList.remove("hidden");
+              previewWrap.innerHTML = previewPlaceholder.outerHTML;
+            }
+          });
+          
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(fileInfo);
+          imgContainer.appendChild(removeBtn);
+          imageGrid.appendChild(imgContainer);
+        };
+        reader.readAsDataURL(file);
       });
       
-      // Click to open file dialog
-      previewWrap.addEventListener("click", () => fileInput.click());
+      previewWrap.appendChild(imageGrid);
+      updateFileSummary();
       
-      // Sample image
-      btnSample.addEventListener("click", useSampleImage);
+      showNotification("Images uploaded", `${files.length} image(s) ready for analysis`, "success");
+    }
+
+    function updateFileSummary() {
+      const existingSummary = previewWrap.querySelector('.file-summary');
+      if (existingSummary) existingSummary.remove();
       
-      // Detection
-      btnDetect.addEventListener("click", detectDiseases);
+      if (currentImages.length > 0) {
+        const totalSize = currentImages.reduce((sum, img) => sum + img.size, 0);
+        const fileInfo = document.createElement("div");
+        fileInfo.className = "file-summary";
+        fileInfo.innerHTML = `
+          <div class="flex justify-center items-center gap-4">
+            <span>📸 ${currentImages.length} image(s)</span>
+            <span>💾 ${(totalSize/1024/1024).toFixed(2)}MB</span>
+            <button id="clearAllBtn" class="text-red-500 hover:text-red-700">Clear All</button>
+          </div>
+        `;
+        previewWrap.appendChild(fileInfo);
+        
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+          currentImages = [];
+          previewPlaceholder.classList.remove("hidden");
+          previewWrap.innerHTML = previewPlaceholder.outerHTML;
+        });
+      }
+    }
+
+    function showImageModal(src, filename) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg max-w-4xl max-h-full overflow-auto">
+          <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-semibold">${filename}</h3>
+            <button class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+          </div>
+          <div class="p-4">
+            <img src="${src}" alt="${filename}" class="max-w-full h-auto">
+          </div>
+        </div>
+      `;
       
-      // Language change
-      langSelect.addEventListener("change", handleLanguageChange);
+      modal.querySelector('button').addEventListener('click', () => modal.remove());
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+      });
       
-      // Tabs
-      document.querySelectorAll(".tab-btn").forEach(b => {
-        b.addEventListener("click", () => {
-          document.querySelectorAll(".tab-btn").forEach(x => x.classList.remove("tab-active"));
-          b.classList.add("tab-active");
-          document.querySelectorAll(".tab-pane").forEach(p => p.classList.add("hidden"));
-          const id = b.dataset.tab;
-          document.getElementById(id).classList.remove("hidden");
+      document.body.appendChild(modal);
+    }
+
+    function useSampleImage() {
+      const sampleKeys = Object.keys(SAMPLE_IMAGES);
+      const numSamples = Math.min(3, Math.floor(Math.random() * 3) + 2);
+      
+      previewPlaceholder.classList.add("hidden");
+      previewWrap.innerHTML = "";
+      
+      const imageGrid = document.createElement("div");
+      imageGrid.className = "image-grid";
+      
+      currentImages = [];
+      
+      for (let i = 0; i < numSamples; i++) {
+        const randomSample = sampleKeys[Math.floor(Math.random() * sampleKeys.length)];
+        const sampleUrl = SAMPLE_IMAGES[randomSample];
+        
+        currentImages.push({
+          src: sampleUrl,
+          name: `sample_${i+1}.jpg`,
+          size: Math.floor(Math.random() * 500000) + 100000,
+          type: 'image/jpeg'
+        });
+        
+        const imgContainer = document.createElement("div");
+        imgContainer.className = "image-item";
+        
+        const img = document.createElement("img");
+        img.src = sampleUrl;
+        img.alt = `Sample image ${i + 1}`;
+        img.className = "w-full h-20 object-cover rounded-lg cursor-pointer";
+        
+        img.addEventListener('click', () => {
+          showImageModal(sampleUrl, `sample_${i+1}.jpg`);
+        });
+        
+        const fileInfo = document.createElement("div");
+        fileInfo.className = "image-info";
+        fileInfo.textContent = `sample_${i+1}.jpg • ${(currentImages[i].size/1024).toFixed(1)}KB`;
+        
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(fileInfo);
+        imageGrid.appendChild(imgContainer);
+      }
+      
+      previewWrap.appendChild(imageGrid);
+      updateFileSummary();
+      
+      const firstSampleKey = sampleKeys.find(key => SAMPLE_IMAGES[key] === currentImages[0].src);
+      const disease = DISEASE_DB.find(d => d.id === firstSampleKey);
+      if (disease) {
+        cropInput.value = disease.crop;
+      }
+      
+      showNotification("Samples loaded", `${numSamples} sample images loaded for testing`, "info");
+    }
+
+    function detectDiseases() {
+      if (!currentImages || currentImages.length === 0) {
+        showNotification("No images", "Please upload images first", "error");
+        return;
+      }
+      
+      if (!cropInput.value) {
+        showNotification("Crop type required", "Please select the crop type", "error");
+        return;
+      }
+      
+      progressWrap.classList.remove("hidden");
+      let progress = 0;
+      const totalImages = currentImages.length;
+      
+      const interval = setInterval(() => {
+        const imagesProcessed = Math.floor((progress / 100) * totalImages);
+        progressText.textContent = `Analyzing ${imagesProcessed + 1} of ${totalImages} images...`;
+        
+        progress += (100 / (totalImages * 2));
+        progressBar.style.width = `${Math.min(progress, 100)}%`;
+        progressPercent.textContent = `${Math.round(Math.min(progress, 100))}%`;
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          processDetectionResult();
+        }
+      }, 200);
+    }
+
+    // === ENHANCED NEARBY STORES ===
+    function updateNearbyStores() {
+      const stores = [
+        { 
+          name: "Kisan Agri Clinic", 
+          distance: "2.3 km", 
+          rating: "4.2",
+          pesticides: ["Neem Oil", "Mancozeb", "Chlorothalonil"],
+          unavailable: ["Bio pesticides"],
+          lat: 26.8467,
+          lng: 80.9462,
+          phone: "+91 9876543210",
+          timing: "8:00 AM - 8:00 PM"
+        },
+        { 
+          name: "Krishi Seva Kendra", 
+          distance: "3.1 km", 
+          rating: "4.5",
+          pesticides: ["Neem Oil", "Bio pesticides", "Fungicides"],
+          unavailable: ["Specialized herbicides"],
+          lat: 26.8567,
+          lng: 80.9562,
+          phone: "+91 9876543211",
+          timing: "9:00 AM - 7:00 PM"
+        }
+      ];
+      
+      storesList.innerHTML = "";
+      stores.forEach((store, index) => {
+        const storeCard = document.createElement("div");
+        storeCard.className = "store-card bg-gray-50 rounded-lg p-3 mb-2 cursor-pointer hover:bg-green-50 transition-colors";
+        storeCard.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="font-semibold text-green-700">${store.name}</div>
+              <div class="text-xs text-gray-600">${store.distance} away • ${store.rating} ★</div>
+              <div class="text-xs text-gray-600">📞 ${store.phone}</div>
+              <div class="text-xs text-gray-600">🕒 ${store.timing}</div>
+              
+              <div class="mt-2">
+                <div class="text-xs font-medium text-green-600">Available:</div>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${store.pesticides.map(p => `<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">${p}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+            <button class="bg-green-500 text-white p-2 rounded-lg text-xs directions-btn" data-index="${index}">
+              <i class="fas fa-directions"></i>
+            </button>
+          </div>
+        `;
+        
+        storeCard.addEventListener('click', () => {
+          showStoreDetails(store);
+        });
+        
+        storesList.appendChild(storeCard);
+      });
+      
+      document.querySelectorAll('.directions-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const index = parseInt(btn.dataset.index);
+          showDirections(stores[index]);
         });
       });
       
-      // Speak advisory
-      btnSpeak.addEventListener("click", speakAdvisory);
-      
-      // Export data
-      btnExportCSV.addEventListener("click", exportCSV);
-      btnClearHistory.addEventListener("click", clearHistory);
-      
-      // PDF export
-      btnPdf.addEventListener("click", generatePDF);
-      
-      // Flag detection
-      btnFlag.addEventListener("click", flagDetection);
-      
-      // Share
-      btnShare.addEventListener("click", shareApp);
-      
-          // ... (previous JavaScript code continues)
+      initAdvancedMap(stores);
+    }
 
-    // Advanced features
-    btnDark.addEventListener("change", toggleDarkMode);
-    btnSaveImage.addEventListener("click", saveImage);
-    btnAnalyze.addEventListener("click", generateReport);
-    btnApiSim.addEventListener("click", simulateAPI);
-    btnShareAdvisory.addEventListener("click", shareAdvisory);
-    
-    // Pesticide calculator
-    btnCalculatePesticide.addEventListener("click", calculatePesticide);
-    fieldArea.addEventListener("input", calculatePesticide);
-    
-    // Chatbot functionality
-    chatToggle.addEventListener("click", toggleChatbot);
-    sendBtn.addEventListener("click", sendChatMessage);
-    chatInput.addEventListener("keypress", (e) => {
-      if (e.key === 'Enter') sendChatMessage();
-    });
-    
-    // Voice recognition
-    voiceBtn.addEventListener("click", toggleVoiceRecognition);
-    
-    // Language buttons in chatbot
-    langButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        langButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        chatLang = btn.dataset.lang;
+    function initAdvancedMap(stores) {
+      if (leafletMap) {
+        leafletMap.remove();
+      }
+      
+      leafletMap = L.map(mapEl).setView([26.8467, 80.9462], 12);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(leafletMap);
+      
+      const markerColors = ['green', 'blue'];
+      
+      stores.forEach((store, index) => {
+        const customIcon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="background-color: ${markerColors[index]}; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></div>`,
+          iconSize: [25, 25],
+          iconAnchor: [12, 12]
+        });
+        
+        const marker = L.marker([store.lat, store.lng], {icon: customIcon}).addTo(leafletMap);
+        
+        marker.bindPopup(`
+          <div class="p-2">
+            <strong>${store.name}</strong><br>
+            Distance: ${store.distance}<br>
+            Rating: ${store.rating} ★<br>
+            <button class="bg-green-500 text-white px-3 py-1 rounded mt-2 text-sm details-btn">View Details</button>
+          </div>
+        `);
       });
-    });
-  }
-
-  // Handle file upload
-  function handleFileUpload(e) {
-    const file = e.target.files[0];
-    if (!file || !file.type.match('image.*')) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      currentImage = e.target.result;
-      previewPlaceholder.classList.add("hidden");
-      previewWrap.innerHTML = `<img src="${currentImage}" alt="Uploaded crop image">`;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // Use sample image
-  function useSampleImage() {
-    const sampleKeys = Object.keys(SAMPLE_IMAGES);
-    const randomSample = sampleKeys[Math.floor(Math.random() * sampleKeys.length)];
-    
-    currentImage = SAMPLE_IMAGES[randomSample];
-    previewPlaceholder.classList.add("hidden");
-    previewWrap.innerHTML = `<img src="${currentImage}" alt="Sample crop image">`;
-    
-    // Auto-select the matching crop type
-    const disease = DISEASE_DB.find(d => d.id === randomSample);
-    if (disease) {
-      cropInput.value = disease.crop;
     }
-    
-    showNotification("Sample loaded", "Using a sample image for demonstration", "info");
-  }
 
-  // Detect diseases (simulated)
-  function detectDiseases() {
-    if (!currentImage) {
-      showNotification("No image", "Please upload an image first", "error");
-      return;
-    }
-    
-    if (!cropInput.value) {
-      showNotification("Crop type required", "Please select the crop type", "error");
-      return;
-    }
-    
-    // Show progress
-    progressWrap.classList.remove("hidden");
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 5;
-      progressBar.style.width = `${progress}%`;
-      progressPercent.textContent = `${progress}%`;
-      
-      if (progress >= 100) {
-        clearInterval(interval);
-        processDetectionResult();
-      }
-    }, 100);
-  }
-
-  // Process detection result
-  function processDetectionResult() {
-    // Simulate AI processing
-    const confidence = parseInt(confRange.value);
-    const cropType = cropInput.value;
-    
-    // Find matching diseases for this crop
-    const possibleDiseases = DISEASE_DB.filter(d => d.crop === cropType);
-    
-    if (possibleDiseases.length === 0) {
-      showNotification("No diseases found", `No known diseases for ${cropType} in our database`, "warning");
-      progressWrap.classList.add("hidden");
-      return;
-    }
-    
-    // Randomly select a disease (simulating AI detection)
-    const detectedDisease = possibleDiseases[Math.floor(Math.random() * possibleDiseases.length)];
-    const detectedConfidence = Math.min(95, confidence + Math.floor(Math.random() * 20) - 10);
-    
-    // Update session
-    session.detections.push({
-      id: detectedDisease.id,
-      crop: cropType,
-      conf: detectedConfidence,
-      time: new Date().toISOString()
-    });
-    saveSession();
-    
-    // Display results
-    displayResults(detectedDisease, detectedConfidence);
-    
-    // Update UI
-    updateStats();
-    renderHistory();
-    updateAnalytics();
-    progressWrap.classList.add("hidden");
-    
-    showNotification("Detection complete", `${detectedDisease.name_en} detected with ${detectedConfidence}% confidence`, "success");
-  }
-
-  // Display results
-  function displayResults(disease, confidence) {
-    currentResult = disease;
-    
-    // Update result card
-    resultCard.classList.remove("hidden");
-    detectedName.textContent = disease[`name_${langSelect.value}`] || disease.name_en;
-    tagCrop.textContent = disease.crop;
-    tagConf.textContent = `${confidence}%`;
-    
-    // Update severity indicator
-    const severity = disease.severity;
-    severityFill.style.width = `${severity}%`;
-    severityValue.textContent = getSeverityText(severity);
-    severityFill.className = "severity-fill " + getSeverityColor(severity);
-    
-    // Update advisory
-    updateAdvisory(disease);
-    
-    // Update symptoms
-    updateSymptoms(disease);
-    
-    // Update nearby stores
-    updateNearbyStores();
-    
-    // Update pesticide recommendation
-    updatePesticideRecommendation(disease);
-  }
-
-  // Get severity text
-  function getSeverityText(severity) {
-    if (severity < 25) return `Low (${severity}%)`;
-    if (severity < 50) return `Moderate (${severity}%)`;
-    if (severity < 75) return `High (${severity}%)`;
-    return `Critical (${severity}%)`;
-  }
-
-  // Get severity color
-  function getSeverityColor(severity) {
-    if (severity < 25) return "bg-emerald-500";
-    if (severity < 50) return "bg-amber-500";
-    if (severity < 75) return "bg-orange-500";
-    return "bg-rose-500";
-  }
-
-  // Update advisory
-  function updateAdvisory(disease) {
-    const lang = langSelect.value;
-    const treatments = disease[`treatment_${lang}`] || disease.treatment_en;
-    
-    advList.innerHTML = "";
-    treatments.forEach(treatment => {
-      const li = document.createElement("li");
-      li.textContent = treatment;
-      li.className = "text-sm";
-      advList.appendChild(li);
-    });
-  }
-
-  // Update symptoms
-  function updateSymptoms(disease) {
-    const lang = langSelect.value;
-    const symptoms = disease[`symptoms_${lang}`] || disease.symptoms_en;
-    
-    symList.innerHTML = "";
-    symptoms.forEach(symptom => {
-      const li = document.createElement("li");
-      li.textContent = symptom;
-      li.className = "text-sm";
-      symList.appendChild(li);
-    });
-  }
-
-  // Update nearby stores
-  function updateNearbyStores() {
-    // Simulate nearby stores
-    const stores = [
-      { name: "Kisan Agri Clinic", distance: "2.3 km", rating: "4.2" },
-      { name: "Krishi Seva Kendra", distance: "3.1 km", rating: "4.5" },
-      { name: "Farm Solutions", distance: "5.7 km", rating: "4.0" }
-    ];
-    
-    storesList.innerHTML = "";
-    stores.forEach(store => {
-      const div = document.createElement("div");
-      div.className = "flex justify-between items-center py-2 border-b";
-      div.innerHTML = `
-        <div>
-          <div class="font-medium">${store.name}</div>
-          <div class="text-xs text-slate-500">${store.distance} away</div>
-        </div>
-        <div class="badge bg-amber-100 text-amber-800">★ ${store.rating}</div>
-      `;
-      storesList.appendChild(div);
-    });
-    
-    // Initialize map if not already done
-    if (!leafletMap) {
-      initMap();
-    }
-  }
-
-  // Initialize map
-  function initMap() {
-    leafletMap = L.map(mapEl).setView([26.8467, 80.9462], 13); // Default to Lucknow
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(leafletMap);
-    
-    // Add markers for stores
-    L.marker([26.8467, 80.9462]).addTo(leafletMap)
-      .bindPopup('Kisan Agri Clinic');
-    
-    L.marker([26.8567, 80.9562]).addTo(leafletMap)
-      .bindPopup('Krishi Seva Kendra');
-    
-    L.marker([26.8367, 80.9362]).addTo(leafletMap)
-      .bindPopup('Farm Solutions');
-  }
-
-  // Update pesticide recommendation
-  function updatePesticideRecommendation(disease) {
-    // Set a recommended dosage based on disease severity
-    const dosage = disease.severity > 50 ? "3g/L" : "2g/L";
-    recommendedDosage.value = dosage;
-    
-    // Calculate initial pesticide requirement
-    calculatePesticide();
-  }
-
-  // Calculate pesticide
-  function calculatePesticide() {
-    const area = parseFloat(fieldArea.value) || 1;
-    const dosageText = recommendedDosage.value;
-    const dosageValue = parseFloat(dosageText);
-    
-    // Calculate required pesticide (assuming 200L water per acre)
-    const pesticideNeeded = area * 200 * dosageValue;
-    pesticideResult.textContent = `${pesticideNeeded}g`;
-  }
-
-  // Speak advisory
-  function speakAdvisory() {
-    if (!currentResult) return;
-    
-    const lang = langSelect.value;
-    const diseaseName = currentResult[`name_${lang}`] || currentResult.name_en;
-    const treatments = currentResult[`treatment_${lang}`] || currentResult.treatment_en;
-    
-    const speechText = `Treatment for ${diseaseName}. ${treatments.join('. ')}`;
-    
-    if ('speechSynthesis' in window) {
-      const speech = new SpeechSynthesisUtterance(speechText);
-      speech.lang = getSpeechLang(lang);
-      window.speechSynthesis.speak(speech);
-    } else {
-      showNotification("Voice not supported", "Your browser doesn't support text-to-speech", "warning");
-    }
-  }
-
-  // Get speech language code
-  function getSpeechLang(lang) {
-    const langMap = {
-      'en': 'en-IN',
-      'hi': 'hi-IN',
-      'ta': 'ta-IN',
-      'te': 'te-IN'
-    };
-    return langMap[lang] || 'en-IN';
-  }
-
-  // Handle language change
-  function handleLanguageChange() {
-    const lang = langSelect.value;
-    
-    // Update UI texts based on language
-    updateUITexts(lang);
-    
-    // Update results if any
-    if (currentResult) {
-      detectedName.textContent = currentResult[`name_${lang}`] || currentResult.name_en;
-      updateAdvisory(currentResult);
-      updateSymptoms(currentResult);
-    }
-  }
-
-  // Update UI texts based on language
-  function updateUITexts(lang) {
-    // This would be more comprehensive in a real application
-    const translations = {
-      en: {
-        leftTitle: "Crop Health Analysis",
-        consentLabel: "Allow anonymous learning",
-        resultsHeading: "Result & Advisory",
-        resultSub: "Upload & detect to see result"
-      },
-      hi: {
-        leftTitle: "फसल स्वास्थ्य विश्लेषण",
-        consentLabel: "अनामिक सीखने की अनुमति दें",
-        resultsHeading: "परिणाम और सलाह",
-        resultSub: "परिणाम देखने के लिए अपलोड और पहचान करें"
-      },
-      ta: {
-        leftTitle: "பயிர் சுகாதார பகுப்பாய்வு",
-        consentLabel: "அநாமதேய கற்றலை அனுமதிக்கவும்",
-        resultsHeading: "முடிவு மற்றும் ஆலோசனை",
-        resultSub: "முடிவைக் காண பதிவேற்றம் மற்றும் கண்டறிதல்"
-      },
-      te: {
-        leftTitle: "పంట ఆరోగ్య విశ్లేషణ",
-        consentLabel: "అజ్ఞాత అభ్యాసాన్ని అనుమతించండి",
-        resultsHeading: "ఫలితం మరియు సలహా",
-        resultSub: "ఫలితం చూడటానికి అప్లోడ్ మరియు గుర్తించండి"
-      }
-    };
-    
-    const t = translations[lang] || translations.en;
-    
-    // Update UI elements
-    document.getElementById("leftTitle").textContent = t.leftTitle;
-    document.getElementById("consentLabel").textContent = t.consentLabel;
-    document.getElementById("resultsHeading").textContent = t.resultsHeading;
-    document.getElementById("resultSub").textContent = t.resultSub;
-  }
-
-  // Update online status
-  function updateOnline() {
-    const isOnline = navigator.onLine;
-    onlineDot.className = `h-3 w-3 rounded-full block ${isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`;
-    onlineText.textContent = isOnline ? 'Online' : 'Offline';
-  }
-
-  // Save session to localStorage
-  function saveSession() {
-    localStorage.setItem('farmguru_session', JSON.stringify(session));
-  }
-
-  // Load session from localStorage
-  function loadSession() {
-    const saved = localStorage.getItem('farmguru_session');
-    if (saved) {
-      session = JSON.parse(saved);
-      updateStats();
-      renderHistory();
-      updateAnalytics();
-    }
-  }
-
-  // Update statistics
-  function updateStats() {
-    statDetections.textContent = session.detections.length;
-    statFlags.textContent = session.flags;
-  }
-
-  // Render history
-  function renderHistory() {
-    historyList.innerHTML = "";
-    
-    if (session.detections.length === 0) {
-      historyList.innerHTML = '<div class="text-center text-slate-500 py-4">No detection history</div>';
-      return;
-    }
-    
-    // Show last 5 detections
-    const recent = session.detections.slice(-5).reverse();
-    
-    recent.forEach(detection => {
-      const disease = DISEASE_DB.find(d => d.id === detection.id);
-      if (!disease) return;
-      
-      const time = new Date(detection.time).toLocaleTimeString();
-      
-      const div = document.createElement("div");
-      div.className = "flex justify-between items-center py-2 border-b";
-      div.innerHTML = `
-        <div>
-          <div class="font-medium">${disease.crop}</div>
-          <div class="text-xs text-slate-500">${disease.name_en}</div>
-        </div>
-        <div class="text-right">
-          <div class="text-sm">${detection.conf}%</div>
-          <div class="text-xs text-slate-500">${time}</div>
+    function showStoreDetails(store) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+          <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-semibold text-lg">${store.name}</h3>
+            <button class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+          </div>
+          <div class="p-4 max-h-96 overflow-y-auto">
+            <div class="space-y-3">
+              <div><strong>Distance:</strong> ${store.distance}</div>
+              <div><strong>Rating:</strong> ${store.rating} ★</div>
+              <div><strong>Phone:</strong> ${store.phone}</div>
+              <div><strong>Timing:</strong> ${store.timing}</div>
+              
+              <div>
+                <strong>Available Pesticides:</strong>
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                  ${store.pesticides.map(p => `
+                    <div class="bg-green-50 border border-green-200 rounded p-2 text-center">
+                      <div class="text-green-700 font-medium">${p}</div>
+                      <div class="text-green-600 text-xs">In Stock</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              
+              <div class="flex gap-2 mt-4">
+                <button class="flex-1 bg-green-500 text-white py-2 rounded directions-btn">
+                  <i class="fas fa-directions"></i> Get Directions
+                </button>
+                <button class="flex-1 bg-blue-500 text-white py-2 rounded call-btn">
+                  <i class="fas fa-phone"></i> Call Now
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       `;
-      historyList.appendChild(div);
-    });
-  }
+      
+      modal.querySelector('button').addEventListener('click', () => modal.remove());
+      modal.querySelector('.directions-btn').addEventListener('click', () => {
+        showDirections(store);
+        modal.remove();
+      });
+      modal.querySelector('.call-btn').addEventListener('click', () => {
+        window.open(`tel:${store.phone}`);
+      });
+      
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+      });
+      
+      document.body.appendChild(modal);
+    }
 
-  // Update analytics
-  function updateAnalytics() {
-    if (session.detections.length === 0) {
-      avgConf.textContent = "0%";
-      uniqueCrops.textContent = "0";
-      return;
+    function showDirections(store) {
+      showNotification("Directions", `Opening directions to ${store.name} in maps app`, "info");
+      setTimeout(() => {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}`, '_blank');
+      }, 1000);
     }
-    
-    // Calculate average confidence
-    const totalConf = session.detections.reduce((sum, d) => sum + d.conf, 0);
-    const avg = Math.round(totalConf / session.detections.length);
-    avgConf.textContent = `${avg}%`;
-    
-    // Count unique crops
-    const unique = new Set(session.detections.map(d => d.crop));
-    uniqueCrops.textContent = unique.size;
-    
-    // Update chart
-    updateDiseaseChart();
-  }
 
-  // Update disease chart
- function updateDiseaseChart() {
-    // Count diseases by type
-    const diseaseCount = {};
-    session.detections.forEach(d => {
-      diseaseCount[d.id] = (diseaseCount[d.id] || 0) + 1;
-    });
-    
-    const diseaseNames = [];
-    const detectionCounts = [];
-    const backgroundColors = [
-      '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6', 
-      '#EC4899', '#6366F1', '#14B8A6', '#F97316', '#84CC16'
-    ];
-    
-    Object.keys(diseaseCount).forEach((id, index) => {
-      const disease = DISEASE_DB.find(d => d.id === id);
-      if (disease) {
-        diseaseNames.push(disease.name_en);
-        detectionCounts.push(diseaseCount[id]);
-      }
-    });
-    
-    // If no data, show a placeholder message
-    if (detectionCounts.length === 0) {
-      diseaseNames.push("No Data");
-      detectionCounts.push(1);
-      backgroundColors[0] = '#E5E7EB';
+    // === ENHANCED WEATHER SYSTEM ===
+    function updateWeather() {
+      const weatherConditions = [
+        { 
+          temp: 32, condition: "Sunny", humidity: 65, rain: 10, 
+          advice: "Perfect weather for spraying. Low wind conditions ideal for pesticide application.",
+          icon: "☀️"
+        },
+        { 
+          temp: 28, condition: "Partly Cloudy", humidity: 70, rain: 30,
+          advice: "Good for light farming activities. Avoid spraying if rain expected within 6 hours.",
+          icon: "⛅"
+        }
+      ];
+      
+      const weather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+      
+      currentTemp.textContent = `${weather.temp}°C`;
+      weatherCondition.textContent = weather.condition;
+      weatherHumidity.textContent = `${weather.humidity}%`;
+      weatherRain.textContent = `${weather.rain}%`;
+      weatherAdvice.textContent = weather.advice;
+      
+      const weatherCard = document.querySelector('.weather-card');
+      weatherCard.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-4xl mb-2">${weather.icon}</div>
+            <div class="text-2xl font-bold">${weather.temp}°C</div>
+            <div class="text-sm">${weather.condition}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm">Humidity: <span>${weather.humidity}%</span></div>
+            <div class="text-sm">Rain: <span>${weather.rain}%</span></div>
+            <div class="text-sm mt-2">🌬️ Wind: 8 km/h</div>
+          </div>
+        </div>
+        <div class="mt-3 p-2 bg-white bg-opacity-20 rounded text-xs">
+          <strong>Farmers Advice:</strong> ${weather.advice}
+        </div>
+      `;
     }
-    
-    // Destroy previous chart if exists
-    if (diseaseChart) {
-      diseaseChart.destroy();
+
+    // === GOVERNMENT SCHEMES ===
+        function initGovernmentSchemes() {
+      schemesContainer.innerHTML = "";
+      
+      GOVERNMENT_SCHEMES.forEach(scheme => {
+        const schemeEl = document.createElement("div");
+        schemeEl.className = "scheme-item bg-slate-50 rounded-lg p-3 border-l-4 border-blue-500 cursor-pointer transition-transform hover:translate-x-1";
+        schemeEl.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="font-semibold text-blue-700">${scheme.title}</div>
+              <div class="text-xs text-slate-600 mt-1">${scheme.description}</div>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${scheme.category}</span>
+                <span class="text-xs text-slate-500">Deadline: ${scheme.deadline}</span>
+              </div>
+            </div>
+            <button class="text-blue-500 hover:text-blue-700 text-lg details-btn">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        `;
+        
+        schemeEl.addEventListener('click', () => {
+          showSchemeDetails(scheme);
+        });
+        
+        schemesContainer.appendChild(schemeEl);
+      });
     }
-    
-    // Create new chart with proper configuration
-    diseaseChart = new Chart(diseaseChartCtx, {
-      type: 'doughnut',
-      data: {
-        labels: diseaseNames,
-        datasets: [{
-          data: detectionCounts,
-          backgroundColor: backgroundColors,
-          borderWidth: 2,
-          borderColor: '#FFFFFF'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '60%',
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              boxWidth: 12,
-              font: {
-                size: 10
-              },
-              padding: 15
-            }
+
+    function showSchemeDetails(scheme) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+          <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-semibold text-lg">${scheme.title}</h3>
+            <button class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+          </div>
+          <div class="p-4 max-h-96 overflow-y-auto">
+            <div class="space-y-4">
+              <div>
+                <strong>Description:</strong>
+                <p class="mt-1 text-sm">${scheme.description}</p>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 p-3 rounded-lg">
+                  <div class="text-xs text-blue-600">Category</div>
+                  <div class="font-semibold">${scheme.category}</div>
+                </div>
+                <div class="bg-green-50 p-3 rounded-lg">
+                  <div class="text-xs text-green-600">Deadline</div>
+                  <div class="font-semibold">${scheme.deadline}</div>
+                </div>
+              </div>
+              
+              <div class="bg-yellow-50 p-3 rounded-lg">
+                <div class="text-xs text-yellow-700 font-semibold">How to Apply:</div>
+                <ul class="text-sm mt-1 list-disc pl-4 space-y-1">
+                  <li>Visit your nearest agriculture office</li>
+                  <li>Carry required documents (Aadhaar, land records)</li>
+                  <li>Fill the application form</li>
+                  <li>Submit to concerned authority</li>
+                </ul>
+              </div>
+              
+              <div class="flex gap-2">
+                <button class="flex-1 bg-blue-500 text-white py-2 rounded apply-btn">
+                  <i class="fas fa-file-alt"></i> Apply Online
+                </button>
+                <button class="flex-1 bg-green-500 text-white py-2 rounded website-btn">
+                  <i class="fas fa-globe"></i> Official Website
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.querySelector('button').addEventListener('click', () => modal.remove());
+      modal.querySelector('.apply-btn').addEventListener('click', () => {
+        showNotification("Application", "Redirecting to online application portal...", "info");
+        setTimeout(() => {
+          window.open('https://agriculture.gov.in', '_blank');
+        }, 1000);
+      });
+      modal.querySelector('.website-btn').addEventListener('click', () => {
+        window.open('https://agriculture.gov.in', '_blank');
+      });
+      
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+      });
+      
+      document.body.appendChild(modal);
+    }
+
+    // === MARKET TRENDS ===
+    function initMarketTrends() {
+      // Generate price history for chart
+      const basePrice = 1800;
+      marketData.history = Array.from({length: 7}, (_, i) => 
+        basePrice + Math.sin(i * 0.8) * 200 + Math.random() * 100
+      );
+      
+      // Update market update time
+      marketUpdateTime.textContent = `Today ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} AM`;
+      
+      // Initialize price chart
+      if (priceChartCtx) {
+        priceChart = new Chart(priceChartCtx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'],
+            datasets: [{
+              label: 'Tomato Price (₹/q)',
+              data: marketData.history,
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4
+            }]
           },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                const label = context.label || '';
-                const value = context.raw || 0;
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = Math.round((value / total) * 100);
-                return `${label}: ${value} (${percentage}%)`;
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  display: false
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                }
+              }
+            },
+            elements: {
+              point: {
+                radius: 0
               }
             }
           }
+        });
+      }
+    }
+
+    // === PROCESS DETECTION RESULT ===
+    function processDetectionResult() {
+      progressText.textContent = "Finalizing results...";
+      
+      setTimeout(() => {
+        progressWrap.classList.add("hidden");
+        
+        // Simulate AI detection result
+        const randomDisease = DISEASE_DB[Math.floor(Math.random() * DISEASE_DB.length)];
+        const confidence = Math.floor(Math.random() * 20) + 75; // 75-95%
+        
+        currentResult = {
+          disease: randomDisease,
+          confidence: confidence,
+          timestamp: new Date().toISOString(),
+          images: currentImages.length
+        };
+        
+        // Update session
+        session.detections.push({
+          id: randomDisease.id,
+          crop: cropInput.value,
+          conf: confidence,
+          time: currentResult.timestamp
+        });
+        saveSession();
+        
+        // Display results
+        displayDetectionResult();
+        updateStats();
+        updateAnalytics();
+        renderHistory();
+        
+        showNotification("Analysis Complete", `Detected ${randomDisease.name_en} with ${confidence}% confidence`, "success");
+      }, 800);
+    }
+
+    function displayDetectionResult() {
+      if (!currentResult) return;
+      
+      const disease = currentResult.disease;
+      const lang = langSelect.value;
+      
+      resultCard.classList.remove("hidden");
+      detectedName.textContent = disease[`name_${lang}`] || disease.name_en;
+      tagCrop.textContent = disease.crop;
+      tagConf.textContent = `${currentResult.confidence}% Confident`;
+      
+      // Update severity
+      const severity = disease.severity;
+      severityFill.style.width = `${severity}%`;
+      severityValue.textContent = severity >= 70 ? `High (${severity}%)` : 
+                                 severity >= 40 ? `Moderate (${severity}%)` : `Low (${severity}%)`;
+      severityFill.className = `severity-fill ${severity >= 70 ? 'bg-red-500' : severity >= 40 ? 'bg-amber-500' : 'bg-green-500'}`;
+      
+      // Update advisory
+      const treatments = disease[`treatment_${lang}`] || disease.treatment_en;
+      advList.innerHTML = treatments.map(t => `<li>${t}</li>`).join('');
+      
+      // Update symptoms
+      const symptoms = disease[`symptoms_${lang}`] || disease.symptoms_en;
+      symList.innerHTML = symptoms.map(s => `<li>${s}</li>`).join('');
+      
+      // Update nearby stores
+      updateNearbyStores();
+      
+      // Update pesticide calculator
+      recommendedDosage.value = severity >= 70 ? "3g/L" : severity >= 40 ? "2g/L" : "1g/L";
+      calculatePesticide();
+    }
+
+    function calculatePesticide() {
+      const area = parseFloat(fieldArea.value) || 1;
+      const dosage = recommendedDosage.value;
+      const rate = parseFloat(dosage);
+      const waterPerAcre = 200; // liters
+      const totalPesticide = area * waterPerAcre * rate;
+      
+      pesticideResult.textContent = `${totalPesticide}g`;
+    }
+
+    // === CHATBOT FUNCTIONALITY ===
+    function initChatbot() {
+      // Toggle chatbot visibility
+      chatToggle.addEventListener('click', () => {
+        chatbotContainer.classList.toggle('hidden');
+      });
+      
+      // Language switching
+      langButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          langButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          chatLang = btn.dataset.lang;
+        });
+      });
+      
+      // Send message
+      sendBtn.addEventListener('click', sendMessage);
+      chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+      });
+      
+      // Voice input
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        
+        recognition.onstart = () => {
+          isListening = true;
+          voiceBtn.classList.add('listening');
+        };
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          chatInput.value = transcript;
+          isListening = false;
+          voiceBtn.classList.remove('listening');
+        };
+        
+        recognition.onerror = () => {
+          isListening = false;
+          voiceBtn.classList.remove('listening');
+        };
+        
+        recognition.onend = () => {
+          isListening = false;
+          voiceBtn.classList.remove('listening');
+        };
+        
+        voiceBtn.addEventListener('click', () => {
+          if (isListening) {
+            recognition.stop();
+          } else {
+            recognition.lang = chatLang === 'en' ? 'en-IN' : 'hi-IN';
+            recognition.start();
+          }
+        });
+      } else {
+        voiceBtn.style.display = 'none';
+      }
+    }
+
+    function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+      
+      // Add user message
+      addMessage(message, 'user');
+      chatInput.value = '';
+      
+      // Simulate AI response
+      setTimeout(() => {
+        const response = generateChatbotResponse(message, chatLang);
+        addMessage(response, 'bot');
+      }, 1000);
+    }
+
+    function addMessage(text, sender) {
+      const messageEl = document.createElement('div');
+      messageEl.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
+      messageEl.textContent = text;
+      chatMessages.appendChild(messageEl);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function generateChatbotResponse(message, lang) {
+      const kb = CHATBOT_KB[lang] || CHATBOT_KB.en;
+      const lowerMessage = message.toLowerCase();
+      
+      // Check for greetings
+      if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('namaste')) {
+        return kb.greeting[0];
+      }
+      
+      // Check for farewell
+      if (lowerMessage.includes('bye') || lowerMessage.includes('thank')) {
+        return kb.thanks[0];
+      }
+      
+      // Check knowledge base
+      for (const [key, response] of Object.entries(kb.questions)) {
+        if (lowerMessage.includes(key)) {
+          return response;
         }
       }
-    });
-  }
-
-  // Export CSV
-  function exportCSV() {
-    if (session.detections.length === 0) {
-      showNotification("No data", "There's no data to export", "warning");
-      return;
-    }
-    
-    let csv = "Crop,Disease,Confidence,Time\n";
-    
-    session.detections.forEach(detection => {
-      const disease = DISEASE_DB.find(d => d.id === detection.id);
-      const diseaseName = disease ? disease.name_en : "Unknown";
-      const time = new Date(detection.time).toLocaleString();
       
-      csv += `"${detection.crop}","${diseaseName}",${detection.conf},"${time}"\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `farmguru_export_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    showNotification("Exported", "Detection history exported as CSV", "success");
-  }
+      // Fallback response
+      return kb.fallback[0];
+    }
 
-  // Clear history
-  function clearHistory() {
-    if (confirm("Are you sure you want to clear all history?")) {
-      session.detections = [];
-      saveSession();
-      updateStats();
-      renderHistory();
-      updateAnalytics();
+    // === UTILITY FUNCTIONS ===
+    function setupEventListeners() {
+      btnUpload.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', handleFileUpload);
+      btnSample.addEventListener('click', useSampleImage);
+      btnDetect.addEventListener('click', detectDiseases);
+      btnSpeak.addEventListener('click', speakAdvisory);
+      btnCalculatePesticide.addEventListener('click', calculatePesticide);
+      fieldArea.addEventListener('input', calculatePesticide);
       
-      showNotification("History cleared", "All detection history has been removed", "info");
-    }
-  }
-
-  // Generate PDF
-  function generatePDF() {
-    if (!currentResult) {
-      showNotification("No result", "There's no result to export", "warning");
-      return;
-    }
-    
-    // In a real app, we would use jsPDF here
-    showNotification("PDF export", "PDF report generation would happen here", "info");
-  }
-
-  // Flag detection
-  function flagDetection() {
-    if (!currentResult) return;
-    
-    session.flags++;
-    saveSession();
-    updateStats();
-    
-    showNotification("Flagged", "This detection has been flagged for review", "info");
-  }
-
-  // Share app
-  function shareApp() {
-    if (navigator.share) {
-      navigator.share({
-        title: 'FarmGuru AI',
-        text: 'Check out this AI-powered crop advisory system',
-        url: window.location.href
-      })
-      .catch(err => {
-        showNotification("Sharing failed", "Could not share the app", "error");
+      // Language selector
+      langSelect.addEventListener('change', (e) => {
+        updateUILanguage(e.target.value);
       });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => {
-          showNotification("Copied", "App link copied to clipboard", "success");
-        })
-        .catch(err => {
-          showNotification("Copy failed", "Could not copy app link", "error");
+      
+      // Tab switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+          
+          btn.classList.add('tab-active');
+          document.getElementById(btn.dataset.tab).classList.remove('hidden');
         });
-    }
-  }
-
-  // Toggle dark mode
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-  }
-
-  // Save image
-  function saveImage() {
-    if (!currentImage) {
-      showNotification("No image", "There's no image to save", "warning");
-      return;
-    }
-    
-    const a = document.createElement('a');
-    a.href = currentImage;
-    a.download = 'farmguru_crop_image.jpg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    showNotification("Image saved", "Crop image downloaded", "success");
-  }
-
-  // Generate report
-  function generateReport() {
-    if (session.detections.length === 0) {
-      showNotification("No data", "There's no data to analyze", "warning");
-      return;
-    }
-    
-    // Simulate report generation
-    showNotification("Report generated", "Analytics report would be generated here", "info");
-  }
-
-  // Simulate API
-  function simulateAPI() {
-    showNotification("API simulation", "This would upload data to cloud API", "info");
-  }
-
-  // Share advisory
-  function shareAdvisory() {
-    if (!currentResult) {
-      showNotification("No advisory", "There's no advisory to share", "warning");
-      return;
-    }
-    
-    const lang = langSelect.value;
-    const diseaseName = currentResult[`name_${lang}`] || currentResult.name_en;
-    
-    const shareText = `FarmGuru AI detected ${diseaseName} in my ${currentResult.crop} crop. Check out FarmGuru AI for smart farming solutions!`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: 'FarmGuru AI Detection',
-        text: shareText,
-        url: window.location.href
-      })
-      .catch(err => {
-        showNotification("Sharing failed", "Could not share the advisory", "error");
-      });
-    } else {
-      navigator.clipboard.writeText(shareText)
-        .then(() => {
-          showNotification("Copied", "Advisory text copied to clipboard", "success");
-        })
-        .catch(err => {
-          showNotification("Copy failed", "Could not copy advisory text", "error");
-        });
-    }
-  }
-
-  // Generate calendar
-  function generateCalendar() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    
-    // Set current month text
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"];
-    currentMonth.textContent = `${monthNames[month]} ${year}`;
-    
-    // Get first day of month and number of days
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    // Clear previous calendar
-    cropCalendar.innerHTML = "";
-    
-    // Add empty cells for days before first day of month
-    for (let i = 0; i < firstDay; i++) {
-      const emptyCell = document.createElement("div");
-      emptyCell.className = "crop-calendar-day opacity-30";
-      cropCalendar.appendChild(emptyCell);
-    }
-    
-    // Add cells for each day of the month
-    const today = now.getDate();
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dayCell = document.createElement("div");
-      dayCell.className = "crop-calendar-day";
-      if (day === today) dayCell.classList.add("today");
-      dayCell.textContent = day;
-      
-      // Add click event
-      dayCell.addEventListener("click", () => {
-        document.querySelectorAll(".crop-calendar-day").forEach(d => d.classList.remove("active"));
-        dayCell.classList.add("active");
-        
-        showNotification("Date selected", `You selected ${day} ${monthNames[month]}`, "info");
       });
       
-      cropCalendar.appendChild(dayCell);
-    }
-  }
-
-  // Update weather
-  function updateWeather() {
-    // Simulate weather data
-    const weatherData = {
-      temp: 32,
-      condition: "Partly Cloudy",
-      humidity: 65,
-      rain: 10,
-      advice: "Good weather for spraying treatments."
-    };
-    
-    currentTemp.textContent = `${weatherData.temp}°C`;
-    weatherCondition.textContent = weatherData.condition;
-    weatherHumidity.textContent = `${weatherData.humidity}%`;
-    weatherRain.textContent = `${weatherData.rain}%`;
-    weatherAdvice.textContent = weatherData.advice;
-  }
-
-  // Initialize chatbot
-  function initChatbot() {
-    // Check if browser supports speech recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      // Dark mode toggle
+      document.getElementById('darkToggle').addEventListener('change', (e) => {
+        document.body.classList.toggle('dark', e.target.checked);
+      });
       
-      recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        chatInput.value = transcript;
-      };
+      // PDF generation
+      document.getElementById('btnPdf').addEventListener('click', generatePDF);
       
-      recognition.onend = function() {
-        isListening = false;
-        voiceBtn.classList.remove("listening");
-        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-      };
-    } else {
-      voiceBtn.style.display = 'none';
+      // Share functionality
+      document.getElementById('shareBtn').addEventListener('click', shareResults);
     }
-  }
 
-  // Toggle chatbot
-  function toggleChatbot() {
-    chatbotContainer.classList.toggle("hidden");
-  }
-
-  // Send chat message
-  function sendChatMessage() {
-    const message = chatInput.value.trim();
-    if (!message) return;
-    
-    // Add user message
-    addChatMessage(message, "user");
-    chatInput.value = "";
-    
-    // Simulate AI response after a delay
-    setTimeout(() => {
-      const response = generateChatResponse(message);
-      addChatMessage(response, "bot");
-    }, 1000);
-  }
-
-  // Add chat message
-  function addChatMessage(text, sender) {
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `message ${sender}-message`;
-    messageDiv.textContent = text;
-    
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  // Generate chat response
-  function generateChatResponse(message) {
-    const lowerMessage = message.toLowerCase();
-    const kb = CHATBOT_KB[chatLang] || CHATBOT_KB.en;
-    
-    // Check for greetings
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
-        lowerMessage.includes('नमस्ते') || lowerMessage.includes('வணக்கம்') || 
-        lowerMessage.includes('నమస్కారం')) {
-      return kb.greeting[Math.floor(Math.random() * kb.greeting.length)];
-    }
-    
-    // Check for thanks
-    if (lowerMessage.includes('thank') || lowerMessage.includes('धन्यवाद') || 
-        lowerMessage.includes('நன்றி') || lowerMessage.includes('ధన్యవాదాలు')) {
-      return kb.thanks[Math.floor(Math.random() * kb.thanks.length)];
-    }
-    
-    // Check for farewell
-    if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye') || 
-        lowerMessage.includes('अलविदा') || lowerMessage.includes('சென்று வருகிறேன்') || 
-        lowerMessage.includes('వీడ్కోలు')) {
-      return kb.farewell[Math.floor(Math.random() * kb.farewell.length)];
-    }
-    
-    // Check for known questions
-    for (const [key, answer] of Object.entries(kb.questions)) {
-      if (lowerMessage.includes(key)) {
-        return answer;
+    function speakAdvisory() {
+      if (!currentResult) return;
+      
+      const disease = currentResult.disease;
+      const lang = langSelect.value;
+      const text = `${disease[`name_${lang}`] || disease.name_en}. ${(disease[`treatment_${lang}`] || disease.treatment_en).join(' ')}`;
+      
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang === 'en' ? 'en-IN' : 'hi-IN';
+        speechSynthesis.speak(utterance);
+      } else {
+        showNotification("Voice not supported", "Text-to-speech is not supported in your browser", "warning");
       }
     }
-    
-    // Fallback response
-    return kb.fallback[Math.floor(Math.random() * kb.fallback.length)];
-  }
 
-  // Toggle voice recognition
-  function toggleVoiceRecognition() {
-    if (!recognition) {
-      showNotification("Voice not supported", "Your browser doesn't support voice recognition", "warning");
-      return;
-    }
-    
-    if (isListening) {
-      recognition.stop();
-    } else {
-      recognition.start();
-      isListening = true;
-      voiceBtn.classList.add("listening");
-      voiceBtn.innerHTML = '<i class="fas fa-circle"></i>';
-    }
-  }
-
-  // Show notification
-  function showNotification(title, message, type) {
-    notificationTitle.textContent = title;
-    notificationMessage.textContent = message;
-    
-    // Set icon and color based on type
-    let icon = "fa-info-circle";
-    if (type === "success") icon = "fa-check-circle";
-    if (type === "error") icon = "fa-exclamation-circle";
-    if (type === "warning") icon = "fa-exclamation-triangle";
-    
-    notificationIcon.className = `fas ${icon}`;
-    notification.className = `notification notification-${type}`;
-    
-    // Show notification
-    notification.classList.remove("hidden");
-    setTimeout(() => {
-      notification.classList.add("show");
-    }, 10);
-    
-    // Hide after 5 seconds
-    setTimeout(() => {
-      notification.classList.remove("show");
+    function generatePDF() {
+      if (!currentResult) {
+        showNotification("No results", "Please analyze an image first", "error");
+        return;
+      }
+      
+      showNotification("PDF Generation", "Preparing your advisory report...", "info");
+      
+      // Simulate PDF generation
       setTimeout(() => {
-        notification.classList.add("hidden");
-      }, 300);
-    }, 5000);
-  }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFontSize(20);
+        doc.text("FarmGuru AI Advisory Report", 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+        doc.text(`Crop: ${currentResult.disease.crop}`, 20, 40);
+        doc.text(`Detection: ${currentResult.disease.name_en}`, 20, 50);
+        doc.text(`Confidence: ${currentResult.confidence}%`, 20, 60);
+        
+        // Add treatments
+        doc.text("Recommended Treatments:", 20, 80);
+        currentResult.disease.treatment_en.forEach((treatment, index) => {
+          doc.text(`• ${treatment}`, 20, 90 + (index * 10));
+        });
+        
+        // Save the PDF
+        doc.save(`FarmGuru-Advisory-${new Date().getTime()}.pdf`);
+        showNotification("PDF Downloaded", "Your advisory report has been saved", "success");
+      }, 1500);
+    }
 
-  // Initialize the app when DOM is loaded
-  document.addEventListener('DOMContentLoaded', init);
-  
-  // Update online status when network changes
-  window.addEventListener('online', updateOnline);
-  window.addEventListener('offline', updateOnline);
-})();
-</script>
+    function shareResults() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'FarmGuru AI Detection',
+          text: `I detected ${currentResult ? currentResult.disease.name_en : 'crop issues'} using FarmGuru AI`,
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        showNotification("Link Copied", "Page URL copied to clipboard", "success");
+      }
+    }
+
+    function showNotification(title, message, type) {
+      notificationTitle.textContent = title;
+      notificationMessage.textContent = message;
+      
+      // Set icon and color based on type
+      const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+      };
+      
+      notification.className = `notification notification-${type}`;
+      notificationIcon.className = `fas ${icons[type]}`;
+      
+      notification.classList.remove('hidden');
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.classList.add('hidden'), 300);
+      }, 4000);
+    }
+
+    function updateOnline() {
+      const onlineDot = document.getElementById('onlineDot');
+      const onlineText = document.getElementById('onlineText');
+      
+      const updateStatus = () => {
+        const isOnline = navigator.onLine;
+        onlineDot.className = `h-3 w-3 rounded-full block ${isOnline ? 'bg-emerald-500' : 'bg-red-500'}`;
+        onlineText.textContent = isOnline ? 'Online' : 'Offline';
+      };
+      
+      window.addEventListener('online', updateStatus);
+      window.addEventListener('offline', updateStatus);
+      updateStatus();
+    }
+
+    function generateCalendar() {
+      const now = new Date();
+      const month = now.getMonth();
+      const year = now.getFullYear();
+      
+      currentMonth.textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      
+      // Get first day of month and number of days
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      cropCalendar.innerHTML = '';
+      
+      // Add empty cells for days before first day of month
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'crop-calendar-day';
+        cropCalendar.appendChild(emptyCell);
+      }
+      
+      // Add days of month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'crop-calendar-day';
+        dayEl.textContent = day;
+        
+        // Mark today
+        if (day === now.getDate() && month === now.getMonth()) {
+          dayEl.classList.add('today');
+        }
+        
+        // Randomly mark some days as active (farm activities)
+        if (Math.random() > 0.7) {
+          dayEl.classList.add('active');
+        }
+        
+        dayEl.addEventListener('click', () => {
+          dayEl.classList.toggle('active');
+        });
+        
+        cropCalendar.appendChild(dayEl);
+      }
+    }
+
+    function loadSession() {
+      const saved = localStorage.getItem('farmguru_session');
+      if (saved) {
+        session = JSON.parse(saved);
+      }
+    }
+
+    function saveSession() {
+      localStorage.setItem('farmguru_session', JSON.stringify(session));
+    }
+
+    function updateStats() {
+      statDetections.textContent = session.detections.length;
+      statFlags.textContent = session.flags;
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = '';
+      
+      session.detections.slice(-5).forEach(detection => {
+        const disease = DISEASE_DB.find(d => d.id === detection.id);
+        if (disease) {
+          const item = document.createElement('div');
+          item.className = 'flex justify-between items-center py-1 border-b border-gray-100';
+          item.innerHTML = `
+            <div>
+              <div class="font-medium">${disease.crop}</div>
+              <div class="text-xs text-gray-500">${new Date(detection.time).toLocaleDateString()}</div>
+            </div>
+            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${detection.conf}%</span>
+          `;
+          historyList.appendChild(item);
+        }
+      });
+    }
+
+    function updateAnalytics() {
+      if (session.detections.length === 0) {
+        avgConf.textContent = '0%';
+        uniqueCrops.textContent = '0';
+        return;
+      }
+      
+      const avgConfidence = session.detections.reduce((sum, d) => sum + d.conf, 0) / session.detections.length;
+      avgConf.textContent = `${Math.round(avgConfidence)}%`;
+      
+      const uniqueCropsCount = new Set(session.detections.map(d => d.crop)).size;
+      uniqueCrops.textContent = uniqueCropsCount;
+      
+      // Update chart
+      if (diseaseChartCtx) {
+        const cropCounts = {};
+        session.detections.forEach(d => {
+          cropCounts[d.crop] = (cropCounts[d.crop] || 0) + 1;
+        });
+        
+        if (diseaseChart) {
+          diseaseChart.destroy();
+        }
+        
+        diseaseChart = new Chart(diseaseChartCtx, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(cropCounts),
+            datasets: [{
+              data: Object.values(cropCounts),
+              backgroundColor: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444', '#8B5CF6']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // Initialize the application when DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-

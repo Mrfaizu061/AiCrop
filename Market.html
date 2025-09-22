@@ -1,1 +1,2183 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmGuru AI - Intelligent Farming Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --primary-dark: #1b5e20;
+            --secondary: #ff9800;
+            --text: #333333;
+            --text-light: #666666;
+            --background: #f5f5f5;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --ai-blue: #2196f3;
+            --ai-purple: #9c27b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .ai-badge {
+            background: var(--ai-blue);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .language-selector {
+            position: relative;
+        }
+
+        .language-btn {
+            background: var(--white);
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 150px;
+            display: none;
+            z-index: 10;
+        }
+
+        .language-dropdown.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-option:hover {
+            background: #f0f0f0;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .search-box {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* AI Recommendations Section */
+        .ai-recommendations {
+            padding: 40px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ai-header i {
+            color: var(--ai-blue);
+            font-size: 24px;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .recommendation-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--ai-blue);
+        }
+
+        .recommendation-card h4 {
+            margin-bottom: 10px;
+            color: var(--ai-blue);
+        }
+
+        .recommendation-card p {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .confidence {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .confidence-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--ai-blue);
+            border-radius: 2px;
+        }
+
+        /* Farmers Section */
+        .farmers-section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .farmers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .farmer-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .farmer-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .farmer-img {
+            height: 200px;
+            background: #ddd;
+            background-image: url('https://images.unsplash.com/photo-1560493676-04071c5f467b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .farmer-info {
+            padding: 20px;
+        }
+
+        .farmer-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .farmer-location {
+            color: var(--text-light);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .farmer-crops {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .crop-tag {
+            background: #e8f5e9;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .farmer-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5e9;
+        }
+
+        .btn-ai {
+            background: var(--ai-blue);
+            color: white;
+        }
+
+        .btn-ai:hover {
+            background: #1976d2;
+        }
+
+        /* Map Section */
+        .map-section {
+            margin-top: 40px;
+        }
+
+        #farmers-map {
+            height: 400px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        /* Data Visualization Section */
+        .data-section {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-title i {
+            color: var(--ai-purple);
+        }
+
+        /* Chat Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-messages {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+        }
+
+        .message.buyer {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.farmer .message-content {
+            background: #f0f0f0;
+            border-top-left-radius: 4px;
+        }
+
+        .message.buyer .message-content {
+            background: var(--primary-light);
+            color: var(--white);
+            border-top-right-radius: 4px;
+        }
+
+        .message.ai .message-content {
+            background: var(--ai-blue);
+            color: white;
+            border-top-left-radius: 4px;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Profile Modal */
+        .profile-modal .modal-content {
+            max-width: 600px;
+        }
+
+        .profile-header {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #ddd;
+            background-image: url('https://images.unsplash.com/photo-1560493676-04071c5f467b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .profile-info h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .profile-details {
+            padding: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            width: 150px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .crops-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .schedule-form {
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-dark);
+            color: var(--white);
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--secondary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--white);
+            padding-left: 5px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .farmers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .modal {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h2 {
+                font-size: 28px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .section-title h2 {
+                font-size: 26px;
+            }
+            
+            .farmer-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-seedling"></i>
+                    <h1>FarmGuru <span class="ai-badge">AI</span></h1>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html" data-lang-key="home">Home</a>
+                    <a href="#" data-lang-key="farmers">Farmers</a>
+                    <a href="#" data-lang-key="crops">Crops</a>
+                    <a href="#" data-lang-key="analytics">Analytics</a>
+                    <a href="#" data-lang-key="about">About</a>
+                    <a href="#" data-lang-key="contact">Contact</a>
+                </div>
+                <div class="header-actions">
+                    <div class="language-selector">
+                        <button class="language-btn" aria-expanded="false">
+                            <i class="fas fa-globe"></i>
+                            <span id="current-language">English</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="language-dropdown">
+                            <div class="language-option" data-lang="en">
+                                <span>English</span>
+                            </div>
+                            <div class="language-option" data-lang="ml">
+                                <span>മലയാളം</span>
+                            </div>
+                            <div class="language-option" data-lang="te">
+                                <span>తెలుగు</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 data-lang-key="hero-title">AI-Powered Farming Marketplace</h2>
+            <p data-lang-key="hero-subtitle">Smart recommendations, predictive analytics, and direct connections with local farmers</p>
+            
+            <div class="search-box">
+                <form class="search-form" id="search-form">
+                    <div class="form-group">
+                        <label for="crop-search" data-lang-key="crop-name">Crop Name</label>
+                        <input type="text" id="crop-search" placeholder="Enter crop name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location" data-lang-key="your-address">Your Address</label>
+                        <input type="text" id="location" placeholder="Enter your address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity" data-lang-key="quantity-kg">Quantity (kg)</label>
+                        <input type="number" id="quantity" placeholder="Enter quantity" min="1" required>
+                    </div>
+                    <button type="submit" class="search-btn" data-lang-key="search">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Recommendations Section -->
+    <section class="ai-recommendations">
+        <div class="container">
+            <div class="ai-header">
+                <i class="fas fa-robot"></i>
+                <h3 data-lang-key="ai-recommendations">AI Recommendations</h3>
+            </div>
+            <div class="recommendations-grid" id="ai-recommendations-grid">
+                <!-- AI recommendations will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Farmers Section -->
+    <section class="farmers-section">
+        <div class="container">
+            <div class="section-title">
+                <h2 data-lang-key="nearby-farmers">AI-Matched Farmers</h2>
+                <p data-lang-key="farmers-description">Farmers ranked by AI based on your preferences and requirements</p>
+            </div>
+            
+            <div class="farmers-grid" id="farmers-grid">
+                <!-- Farmer cards will be dynamically inserted here -->
+            </div>
+            
+            <!-- Map Section -->
+            <div class="map-section">
+                <h3 data-lang-key="farmers-map" style="margin-bottom: 15px;">Farmers on Map</h3>
+                <div id="farmers-map"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Visualization Section -->
+    <section class="data-section">
+        <div class="container">
+            <div class="section-title">
+                <h2 data-lang-key="market-analytics">Market Analytics</h2>
+                <p data-lang-key="analytics-description">AI-powered insights into crop prices, demand trends, and market opportunities</p>
+            </div>
+            
+            <div class="charts-container">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-line"></i>
+                        <span data-lang-key="price-trends">Crop Price Trends</span>
+                    </div>
+                    <canvas id="price-chart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <span data-lang-key="demand-forecast">Demand Forecast</span>
+                    </div>
+                    <canvas id="demand-chart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie"></i>
+                        <span data-lang-key="crop-distribution">Crop Distribution</span>
+                    </div>
+                    <canvas id="distribution-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Modal -->
+    <div class="modal chat-modal" id="chat-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-lang-key="chat-with-farmer">Chat with Farmer</div>
+                <button class="close-modal" onclick="closeChatModal()" aria-label="Close chat">&times;</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Chat messages will be dynamically inserted here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message..." data-lang-key="type-message">
+                <button class="send-btn" id="send-btn" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal profile-modal" id="profile-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-lang-key="farmer-profile">Farmer Profile</div>
+                <button class="close-modal" onclick="closeProfileModal()" aria-label="Close profile">&times;</button>
+            </div>
+            <div class="profile-header">
+                <div class="profile-img" id="profile-img"></div>
+                <div class="profile-info">
+                    <h3 id="profile-name">Rajesh Kumar</h3>
+                    <p data-lang-key="organic-farmer">Organic Farmer since 2010</p>
+                    <div class="farmer-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="profile-location">Thrissur, Kerala</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-details">
+                <div class="detail-item">
+                    <div class="detail-label" data-lang-key="contact">Contact:</div>
+                    <div id="profile-contact">+91 98765 43210</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label" data-lang-key="address">Address:</div>
+                    <div id="profile-address">Farmland, PO: Vadakkanchery, Thrissur, Kerala - 680623</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label" data-lang-key="ai-rating">AI Rating:</div>
+                    <div id="profile-rating">
+                        <span class="rating-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </span>
+                        <span>(4.5/5)</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label" data-lang-key="total-sales">Total Sales:</div>
+                    <div id="profile-sales">1,250+ transactions</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label" data-lang-key="crops-grown">Crops Grown:</div>
+                    <div class="crops-list" id="profile-crops">
+                        <!-- Crops will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+            <div class="schedule-form">
+                <h3 data-lang-key="schedule-visit">Schedule a Farm Visit</h3>
+                <form id="visit-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="visit-crop" data-lang-key="crop-interest">Crop of Interest</label>
+                            <input type="text" id="visit-crop" placeholder="Enter crop name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="visit-quantity" data-lang-key="quantity-kg">Quantity (kg)</label>
+                            <input type="number" id="visit-quantity" placeholder="Enter quantity" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="visit-date" data-lang-key="preferred-date">Preferred Date</label>
+                            <input type="date" id="visit-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="visit-time" data-lang-key="preferred-time">Preferred Time</label>
+                            <input type="time" id="visit-time" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn" data-lang-key="schedule-visit">Schedule Visit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Visit scheduled successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3 data-lang-key="about-farmguru">About FarmGuru AI</h3>
+                    <p data-lang-key="footer-about">FarmGuru AI uses advanced algorithms to connect buyers with the best farmers, predict market trends, and optimize agricultural transactions.</p>
+                </div>
+                <div class="footer-column">
+                    <h3 data-lang-key="quick-links">Quick Links</h3>
+                    <ul>
+                        <li><a href="#" data-lang-key="home">Home</a></li>
+                        <li><a href="#" data-lang-key="farmers">Farmers</a></li>
+                        <li><a href="#" data-lang-key="analytics">Analytics</a></li>
+                        <li><a href="#" data-lang-key="about">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3 data-lang-key="contact-us">Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@farmguruai.com</li>
+                        <li><i class="fas fa-phone"></i> +91 1800 123 4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Kochi, Kerala, India</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 FarmGuru AI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    // Advanced Data Structures and AI Simulation
+    class Graph {
+        constructor() {
+            this.nodes = new Map();
+            this.edges = new Map();
+        }
+
+        addNode(id, data) {
+            this.nodes.set(id, data);
+            this.edges.set(id, new Map());
+        }
+
+        addEdge(from, to, weight) {
+            this.edges.get(from).set(to, weight);
+            this.edges.get(to).set(from, weight);
+        }
+
+        dijkstra(start, end) {
+            const distances = new Map();
+            const previous = new Map();
+            const visited = new Set();
+            const queue = new PriorityQueue();
+
+            for (const node of this.nodes.keys()) {
+                distances.set(node, node === start ? 0 : Infinity);
+                queue.enqueue(node, distances.get(node));
+            }
+
+            while (!queue.isEmpty()) {
+                const current = queue.dequeue().element;
+                visited.add(current);
+
+                if (current === end) break;
+
+                for (const [neighbor, weight] of this.edges.get(current)) {
+                    if (!visited.has(neighbor)) {
+                        const alt = distances.get(current) + weight;
+                        if (alt < distances.get(neighbor)) {
+                            distances.set(neighbor, alt);
+                            previous.set(neighbor, current);
+                            queue.enqueue(neighbor, alt);
+                        }
+                    }
+                }
+            }
+
+            return { distance: distances.get(end), path: this.reconstructPath(previous, start, end) };
+        }
+
+        reconstructPath(previous, start, end) {
+            const path = [];
+            let current = end;
+            while (current !== start) {
+                path.unshift(current);
+                current = previous.get(current);
+            }
+            path.unshift(start);
+            return path;
+        }
+    }
+
+    class PriorityQueue {
+        constructor() {
+            this.elements = [];
+        }
+
+        enqueue(element, priority) {
+            this.elements.push({ element, priority });
+            this.elements.sort((a, b) => a.priority - b.priority);
+        }
+
+        dequeue() {
+            return this.elements.shift();
+        }
+
+        isEmpty() {
+            return this.elements.length === 0;
+        }
+    }
+
+    class AISystem {
+        constructor() {
+            this.farmerGraph = new Graph();
+            this.cropData = new Map();
+            this.userPreferences = {};
+            this.initializeData();
+        }
+
+        initializeData() {
+            // Initialize crop data with prices, seasons, etc.
+            this.cropData.set('rice', {
+                basePrice: 45,
+                season: ['Jan', 'Feb', 'Mar', 'Apr', 'Sep', 'Oct', 'Nov', 'Dec'],
+                demand: 0.8,
+                shelfLife: 365
+            });
+            this.cropData.set('coconut', {
+                basePrice: 25,
+                season: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                demand: 0.6,
+                shelfLife: 30
+            });
+            this.cropData.set('banana', {
+                basePrice: 30,
+                season: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                demand: 0.9,
+                shelfLife: 7
+            });
+            this.cropData.set('chili', {
+                basePrice: 120,
+                season: ['Jan', 'Feb', 'Mar', 'Oct', 'Nov', 'Dec'],
+                demand: 0.7,
+                shelfLife: 14
+            });
+            this.cropData.set('tomato', {
+                basePrice: 40,
+                season: ['Jan', 'Feb', 'Mar', 'Oct', 'Nov', 'Dec'],
+                demand: 0.95,
+                shelfLife: 7
+            });
+            this.cropData.set('mango', {
+                basePrice: 60,
+                season: ['Mar', 'Apr', 'May', 'Jun'],
+                demand: 0.85,
+                shelfLife: 10
+            });
+
+            // Initialize farmer graph with connections based on location, crop similarity, etc.
+            const farmers = [
+                { id: 1, name: "Rajesh Kumar", location: [10.5276, 76.2144], crops: ['rice', 'coconut', 'banana'], rating: 4.5 },
+                { id: 2, name: "Suresh Reddy", location: [16.3067, 80.4365], crops: ['chili', 'tomato', 'cotton'], rating: 4.2 },
+                { id: 3, name: "Priya Nair", location: [10.7867, 76.6548], crops: ['mango', 'cashew', 'black pepper'], rating: 4.7 },
+                { id: 4, name: "Anil Patel", location: [23.0225, 72.5714], crops: ['wheat', 'cotton', 'groundnut'], rating: 4.0 },
+                { id: 5, name: "Sunita Singh", location: [28.7041, 77.1025], crops: ['vegetables', 'fruits', 'flowers'], rating: 4.8 }
+            ];
+
+            farmers.forEach(farmer => {
+                this.farmerGraph.addNode(farmer.id, farmer);
+            });
+
+            // Create edges based on geographic proximity and crop similarity
+            for (let i = 0; i < farmers.length; i++) {
+                for (let j = i + 1; j < farmers.length; j++) {
+                    const dist = this.calculateDistance(farmers[i].location, farmers[j].location);
+                    const cropSim = this.calculateCropSimilarity(farmers[i].crops, farmers[j].crops);
+                    const weight = dist * (1 - cropSim * 0.3); // Lower weight for similar crops
+                    this.farmerGraph.addEdge(farmers[i].id, farmers[j].id, weight);
+                }
+            }
+        }
+
+        calculateDistance(loc1, loc2) {
+            const [lat1, lon1] = loc1;
+            const [lat2, lon2] = loc2;
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        calculateCropSimilarity(crops1, crops2) {
+            const set1 = new Set(crops1);
+            const set2 = new Set(crops2);
+            const intersection = new Set([...set1].filter(x => set2.has(x)));
+            const union = new Set([...set1, ...set2]);
+            return intersection.size / union.size;
+        }
+
+        getRecommendations(userCrop, userLocation, quantity) {
+            const recommendations = [];
+            const currentMonth = new Date().toLocaleString('en', { month: 'short' });
+
+            // Find best matching farmers
+            for (const [id, farmer] of this.farmerGraph.nodes) {
+                if (farmer.crops.includes(userCrop)) {
+                    const distance = this.calculateDistance(userLocation, farmer.location);
+                    const cropData = this.cropData.get(userCrop);
+                    const inSeason = cropData.season.includes(currentMonth);
+                    
+                    // AI scoring algorithm
+                    let score = farmer.rating * 20; // Base rating score
+                    score += (100 - Math.min(distance, 100)); // Distance score (closer is better)
+                    score += inSeason ? 30 : 0; // Season bonus
+                    score += cropData.demand * 20; // Demand factor
+                    
+                    recommendations.push({
+                        farmer: farmer,
+                        score: score,
+                        distance: distance,
+                        inSeason: inSeason,
+                        estimatedPrice: this.estimatePrice(cropData, quantity, distance)
+                    });
+                }
+            }
+
+            // Sort by AI score
+            recommendations.sort((a, b) => b.score - a.score);
+            return recommendations.slice(0, 5); // Return top 5
+        }
+
+        estimatePrice(cropData, quantity, distance) {
+            // Simple pricing model considering base price, quantity discount, and transportation cost
+            let price = cropData.basePrice;
+            
+            // Quantity discount
+            if (quantity > 100) price *= 0.9;
+            else if (quantity > 50) price *= 0.95;
+            
+            // Transportation cost (₹0.5 per km)
+            price += distance * 0.5;
+            
+            return Math.round(price * 100) / 100;
+        }
+
+        getMarketInsights(crop) {
+            const cropData = this.cropData.get(crop);
+            if (!cropData) return null;
+
+            const currentMonth = new Date().toLocaleString('en', { month: 'short' });
+            const inSeason = cropData.season.includes(currentMonth);
+            
+            return {
+                currentPrice: cropData.basePrice,
+                priceTrend: inSeason ? 'stable' : 'rising',
+                demandLevel: cropData.demand > 0.8 ? 'high' : (cropData.demand > 0.5 ? 'medium' : 'low'),
+                bestBuyTime: inSeason ? 'now' : 'next season',
+                shelfLife: cropData.shelfLife
+            };
+        }
+    }
+
+    // Language Support
+    const languages = {
+        en: {
+            "home": "Home",
+            "farmers": "Farmers",
+            "crops": "Crops",
+            "analytics": "Analytics",
+            "about": "About",
+            "contact": "Contact",
+            "hero-title": "AI-Powered Farming Marketplace",
+            "hero-subtitle": "Smart recommendations, predictive analytics, and direct connections with local farmers",
+            "crop-name": "Crop Name",
+            "your-address": "Your Address",
+            "quantity-kg": "Quantity (kg)",
+            "search": "Search",
+            "ai-recommendations": "AI Recommendations",
+            "nearby-farmers": "AI-Matched Farmers",
+            "farmers-description": "Farmers ranked by AI based on your preferences and requirements",
+            "view-profile": "View Profile",
+            "chat": "Chat",
+            "ai-analysis": "AI Analysis",
+            "chat-with-farmer": "Chat with Farmer",
+            "farmer-welcome": "Hello! How can I help you today?",
+            "buyer-inquiry": "I'm interested in your rice crop. What's the current price per kg?",
+            "farmer-response": "The current price is ₹45 per kg for the premium quality rice.",
+            "type-message": "Type your message...",
+            "farmer-profile": "Farmer Profile",
+            "organic-farmer": "Organic Farmer since 2010",
+            "contact": "Contact:",
+            "address": "Address:",
+            "ai-rating": "AI Rating:",
+            "total-sales": "Total Sales:",
+            "crops-grown": "Crops Grown:",
+            "schedule-visit": "Schedule a Farm Visit",
+            "crop-interest": "Crop of Interest",
+            "preferred-date": "Preferred Date",
+            "preferred-time": "Preferred Time",
+            "market-analytics": "Market Analytics",
+            "analytics-description": "AI-powered insights into crop prices, demand trends, and market opportunities",
+            "price-trends": "Crop Price Trends",
+            "demand-forecast": "Demand Forecast",
+            "crop-distribution": "Crop Distribution",
+            "about-farmguru": "About FarmGuru AI",
+            "footer-about": "FarmGuru AI uses advanced algorithms to connect buyers with the best farmers, predict market trends, and optimize agricultural transactions.",
+            "quick-links": "Quick Links",
+            "contact-us": "Contact Us",
+            "farmers-map": "Farmers on Map"
+        },
+        ml: {
+            "home": "വീട്",
+            "farmers": "കർഷകർ",
+            "crops": "പയർവർഗങ്ങൾ",
+            "analytics": "വിശകലനം",
+            "about": "കുറിച്ച്",
+            "contact": "ബന്ധപ്പെടുക",
+            "hero-title": "AI-പവർഡ് ഫാമിംഗ് മാർക്കറ്റ്പ്ലേസ്",
+            "hero-subtitle": "സ്മാർട്ട് ശുപാർശകൾ, പ്രെഡിക്റ്റീവ് അനലിറ്റിക്സ്, പ്രാദേശിക കർഷകരുമായുള്ള നേരിട്ടുള്ള കണക്ഷനുകൾ",
+            "crop-name": "വിളയുടെ പേര്",
+            "your-address": "നിങ്ങളുടെ വിലാസം",
+            "quantity-kg": "അളവ് (കിലോ)",
+            "search": "തിരയുക",
+            "ai-recommendations": "AI ശുപാർശകൾ",
+            "nearby-farmers": "AI-മത്ത്ച്ച് ചെയ്ത കർഷകർ",
+            "farmers-description": "നിങ്ങളുടെ മുൻഗണനകളും ആവശ്യങ്ങളും അടിസ്ഥാനമാക്കി AI റാങ്ക് ചെയ്ത കർഷകർ",
+            "view-profile": "പ്രൊഫൈൽ കാണുക",
+            "chat": "സംവദിക്കുക",
+            "ai-analysis": "AI വിശകലനം",
+            "chat-with-farmer": "കർഷകനുമായി സംവദിക്കുക",
+            "farmer-welcome": "നമസ്കാരം! ഇന്ന് എനിക്ക് നിങ്ങളെ എങ്ങനെ സഹായിക്കാനാകും?",
+            "buyer-inquiry": "നിങ്ങളുടെ അരി വിളയിൽ ഞാൻ താൽപ്പര്യപ്പെടുന്നു. കിലോയ്ക്ക് നിലവിലെ വില എത്രയാണ്?",
+            "farmer-response": "പ്രീമിയം ഗുണമേന്മയുള്ള അരിയുടെ നിലവിലെ വില കിലോയ്ക്ക് ₹45 ആണ്.",
+            "type-message": "നിങ്ങളുടെ സന്ദേശം ടൈപ്പ് ചെയ്യുക...",
+            "farmer-profile": "കർഷക പ്രൊഫൈൽ",
+            "organic-farmer": "2010 മുതൽ ഓർഗാനിക് കർഷകൻ",
+            "contact": "ബന്ധപ്പെടുക:",
+            "address": "വിലാസം:",
+            "ai-rating": "AI റേറ്റിംഗ്:",
+            "total-sales": "മൊത്തം വിൽപ്പന:",
+            "crops-grown": "വളർത്തുന്ന വിളകൾ:",
+            "schedule-visit": "ഫാം സന്ദർശനം ഷെഡ്യൂൾ ചെയ്യുക",
+            "crop-interest": "താൽപ്പര്യമുള്ള വിള",
+            "preferred-date": "ഇഷ്ടപ്പെട്ട തീയതി",
+            "preferred-time": "ഇഷ്ടപ്പെട്ട സമയം",
+            "market-analytics": "മാർക്കറ്റ് വിശകലനം",
+            "analytics-description": "വിള വിലകൾ, ഡിമാൻഡ് പ്രവണതകൾ, മാർക്കറ്റ് അവസരങ്ങൾ എന്നിവയെക്കുറിച്ചുള്ള AI-പവർഡ് ഇൻസൈറ്റുകൾ",
+            "price-trends": "വിള വില പ്രവണതകൾ",
+            "demand-forecast": "ഡിമാൻഡ് പ്രവചനം",
+            "crop-distribution": "വിള വിതരണം",
+            "about-farmguru": "ഫാംഗുരു AI-യെക്കുറിച്ച്",
+            "footer-about": "ഫാംഗുരു AI മികച്ച കർഷകരുമായി വാങ്ങുന്നവരെ ബന്ധിപ്പിക്കുന്നതിന്, മാർക്കറ്റ് പ്രവണതകൾ പ്രവചിക്കുന്നതിന്, കാർഷിക ഇടപാടുകൾ ഒപ്റ്റിമൈസ് ചെയ്യുന്നതിന് അഡ്വാൻസ്ഡ് അൽഗോരിതങ്ങൾ ഉപയോഗിക്കുന്നു.",
+            "quick-links": "ദ്രുത ലിങ്കുകൾ",
+            "contact-us": "ഞങ്ങളെ ബന്ധപ്പെടുക",
+            "farmers-map": "മാപ്പിലെ കർഷകർ"
+        },
+        te: {
+            "home": "హోమ్",
+            "farmers": "రైతులు",
+            "crops": "పంటలు",
+            "analytics": "విశ్లేషణ",
+            "about": "గురించి",
+            "contact": "సంప్రదించండి",
+            "hero-title": "AI-పవర్డ్ ఫార్మింగ్ మార్కెట్ప్లేస్",
+            "hero-subtitle": "స్మార్ట్ సిఫార్సులు, ప్రెడిక్టివ్ అనలిటిక్స్ మరియు స్థానిక రైతులతో నేరుగా కనెక్షన్లు",
+            "crop-name": "పంట పేరు",
+            "your-address": "మీ చిరునామా",
+            "quantity-kg": "పరిమాణం (కిలోలో)",
+            "search": "శోధించు",
+            "ai-recommendations": "AI సిఫార్సులు",
+            "nearby-farmers": "AI-మ్యాచ్ చేసిన రైతులు",
+            "farmers-description": "మీ ప్రాధాన్యతలు మరియు అవసరాల ఆధారంగా AI ర్యాంక్ చేసిన రైతులు",
+            "view-profile": "ప్రొఫైల్ వీక్షించు",
+            "chat": "చాట్",
+            "ai-analysis": "AI విశ్లేషణ",
+            "chat-with-farmer": "రైతుతో చాట్ చేయండి",
+            "farmer-welcome": "హలో! ఈరోజు నేను మీకు ఎలా సహాయపడగలను?",
+            "buyer-inquiry": "నేను మీ బియ్యం పంటపై ఆసక్తి కలిగి ఉన్నాను. కిలోకు ప్రస్తుత ధర ఎంత?",
+            "farmer-response": "ప్రీమియం క్వాలిటీ బియ్యానికి ప్రస్తుత ధర కిలోకు ₹45.",
+            "type-message": "మీ సందేశాన్ని టైప్ చేయండి...",
+            "farmer-profile": "రైతు ప్రొఫైల్",
+            "organic-farmer": "2010 నుండి సేంద్రీయ రైతు",
+            "contact": "సంప్రదించండి:",
+            "address": "చిరునామా:",
+            "ai-rating": "AI రేటింగ్:",
+            "total-sales": "మొత్తం అమ్మకాలు:",
+            "crops-grown": "వ్యవసాయం చేసే పంటలు:",
+            "schedule-visit": "ఫార్మ్ విజిట్ షెడ్యూల్ చేయండి",
+            "crop-interest": "ఆసక్తి ఉన్న పంట",
+            "preferred-date": "ఇష్టపడిన తేదీ",
+            "preferred-time": "ఇష్టపడిన సమయం",
+            "market-analytics": "మార్కెట్ విశ్లేషణ",
+            "analytics-description": "పంట ధరలు, డిమాండ్ ట్రెండ్లు మరియు మార్కెట్ అవకాశాలపై AI-పవర్డ్ ఇన్సైట్స్",
+            "price-trends": "పంట ధర ట్రెండ్లు",
+            "demand-forecast": "డిమాండ్ ఫోర్కాస్ట్",
+            "crop-distribution": "పంట పంపిణీ",
+            "about-farmguru": "ఫార్మ్ గురు AI గురించి",
+            "footer-about": "ఫార్మ్ గురు AI అత్యుత్తమ రైతులతో కొనుగోలుదారులను కనెక్ట్ చేయడానికి, మార్కెట్ ట్రెండ్లను అంచనా వేయడానికి మరియు వ్యవసాయ లావాదేవీలను ఆప్టిమైజ్ చేయడానికి అధునాతన అల్గారిథమ్లను ఉపయోగిస్తుంది.",
+            "quick-links": "త్వరిత లింకులు",
+            "contact-us": "మమ్మల్ని సంప్రదించండి",
+            "farmers-map": "మ్యాప్లో రైతులు"
+        }
+    };
+
+    let currentLanguage = 'en';
+    let currentFarmerId = null;
+    let aiSystem = null;
+
+    // DOM Content Loaded Event
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
+    });
+
+    function initializeApp() {
+        // Initialize AI System
+        aiSystem = new AISystem();
+        
+        // Language selector functionality
+        const languageBtn = document.querySelector('.language-btn');
+        if (languageBtn) {
+            languageBtn.addEventListener('click', function() {
+                const dropdown = document.querySelector('.language-dropdown');
+                if (dropdown) dropdown.classList.toggle('show');
+            });
+        }
+
+        // Language options
+        document.querySelectorAll('.language-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const lang = this.getAttribute('data-lang');
+                changeLanguage(lang);
+                const dropdown = document.querySelector('.language-dropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            });
+        });
+
+        // Chat functionality
+        const sendBtn = document.querySelector('.send-btn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', sendMessage);
+        }
+
+        const chatInput = document.querySelector('.chat-input input');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
+
+        // Search functionality
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+        }
+
+        // Initialize map
+        initMap();
+        
+        // Initialize charts
+        initCharts();
+        
+        // Show default AI recommendations
+        showDefaultRecommendations();
+    }
+
+    function changeLanguage(lang) {
+        if (!languages[lang]) {
+            console.error('Language not supported:', lang);
+            return;
+        }
+
+        currentLanguage = lang;
+        const langText = {
+            'en': 'English',
+            'ml': 'മലയാളം', 
+            'te': 'తెలుగు'
+        };
+        
+        const currentLangElement = document.getElementById('current-language');
+        if (currentLangElement) {
+            currentLangElement.textContent = langText[lang] || 'English';
+        }
+
+        // Update all elements with data-lang-key attribute
+        document.querySelectorAll('[data-lang-key]').forEach(element => {
+            const key = element.getAttribute('data-lang-key');
+            if (languages[lang][key]) {
+                if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                    if (element.placeholder !== undefined) {
+                        element.placeholder = languages[lang][key];
+                    } else {
+                        element.value = languages[lang][key];
+                    }
+                } else {
+                    element.textContent = languages[lang][key];
+                }
+            }
+        });
+
+        // Update modal content if modals are open
+        updateModalContent();
+    }
+
+    function updateModalContent() {
+        // Update chat modal if open
+        const chatModal = document.querySelector('.chat-modal');
+        if (chatModal && chatModal.classList.contains('show')) {
+            // Update chat placeholder
+            const chatInput = document.querySelector('.chat-input input');
+            if (chatInput) {
+                chatInput.placeholder = languages[currentLanguage]['type-message'] || 'Type your message...';
+            }
+        }
+
+        // Update profile modal if open
+        const profileModal = document.querySelector('.profile-modal');
+        if (profileModal && profileModal.classList.contains('show') && currentFarmerId) {
+            openProfileModal(currentFarmerId); // Refresh profile data with current language
+        }
+    }
+
+    function showDefaultRecommendations() {
+        const recommendationsGrid = document.getElementById('ai-recommendations-grid');
+        if (!recommendationsGrid) return;
+        
+        const defaultRecommendations = [
+            {
+                title: "Seasonal Buying",
+                description: "Rice prices are expected to drop 15% next month. Consider waiting for better deals.",
+                confidence: 85
+            },
+            {
+                title: "Alternative Crops",
+                description: "Based on your search history, you might also like quinoa - a high-value crop with growing demand.",
+                confidence: 78
+            },
+            {
+                title: "Bulk Purchase",
+                description: "Buying in quantities over 100kg can save you up to 20% on transportation costs.",
+                confidence: 92
+            },
+            {
+                title: "Local Trends",
+                description: "Organic farming is growing 25% faster in your region. Consider organic options.",
+                confidence: 67
+            }
+        ];
+        
+        recommendationsGrid.innerHTML = '';
+        
+        defaultRecommendations.forEach(rec => {
+            const card = document.createElement('div');
+            card.className = 'recommendation-card';
+            card.innerHTML = `
+                <h4>${rec.title}</h4>
+                <p>${rec.description}</p>
+                <div class="confidence">
+                    <span>AI Confidence:</span>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${rec.confidence}%"></div>
+                    </div>
+                    <span>${rec.confidence}%</span>
+                </div>
+            `;
+            recommendationsGrid.appendChild(card);
+        });
+    }
+
+    function showAIRecommendations(crop, location, quantity) {
+        const recommendationsGrid = document.getElementById('ai-recommendations-grid');
+        if (!recommendationsGrid || !aiSystem) return;
+        
+        const insights = aiSystem.getMarketInsights(crop);
+        if (!insights) return;
+        
+        const recommendations = [
+            {
+                title: "Price Trend",
+                description: `Prices are ${insights.priceTrend}. ${insights.bestBuyTime === 'now' ? 'Good time to buy.' : 'Consider waiting for the next season.'}`,
+                confidence: insights.priceTrend === 'stable' ? 75 : 60
+            },
+            {
+                title: "Demand Level",
+                description: `Current demand is ${insights.demandLevel}. ${insights.demandLevel === 'high' ? 'Prices may increase soon.' : 'Negotiation power is in your favor.'}`,
+                confidence: 80
+            },
+            {
+                title: "Storage Advice",
+                description: `This crop has a shelf life of ${insights.shelfLife} days. Plan your purchase accordingly.`,
+                confidence: 90
+            },
+            {
+                title: "Quantity Optimization",
+                description: `Based on demand, buying ${quantity > 50 ? 'less' : 'more'} may yield better prices.`,
+                confidence: 70
+            }
+        ];
+        
+        recommendationsGrid.innerHTML = '';
+        
+        recommendations.forEach(rec => {
+            const card = document.createElement('div');
+            card.className = 'recommendation-card';
+            card.innerHTML = `
+                <h4>${rec.title}</h4>
+                <p>${rec.description}</p>
+                <div class="confidence">
+                    <span>AI Confidence:</span>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${rec.confidence}%"></div>
+                    </div>
+                    <span>${rec.confidence}%</span>
+                </div>
+            `;
+            recommendationsGrid.appendChild(card);
+        });
+    }
+
+    function displayFarmers(recommendations) {
+        const farmersGrid = document.getElementById('farmers-grid');
+        if (!farmersGrid) return;
+        
+        farmersGrid.innerHTML = '';
+        
+        recommendations.forEach(rec => {
+            const farmer = rec.farmer;
+            const card = document.createElement('div');
+            card.className = 'farmer-card';
+            card.setAttribute('data-farmer-id', farmer.id);
+            
+            card.innerHTML = `
+                <div class="farmer-img" style="background-image: url('https://images.unsplash.com/photo-${farmer.id === 1 ? '1560493676-04071c5f467b' : farmer.id === 2 ? '1586773860418-d37222d8fce3' : '1559163493-4b6a53be5bf4'}?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80')"></div>
+                <div class="farmer-info">
+                    <h3 class="farmer-name">${farmer.name}</h3>
+                    <div class="farmer-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${farmer.location[0] > 15 ? 'Andhra Pradesh' : 'Kerala'} - ${rec.distance.toFixed(1)} km away</span>
+                    </div>
+                    <div class="farmer-crops">
+                        ${farmer.crops.map(crop => `<span class="crop-tag">${crop.charAt(0).toUpperCase() + crop.slice(1)}</span>`).join('')}
+                    </div>
+                    <div class="ai-score" style="margin-bottom: 10px; font-size: 12px; color: var(--ai-blue);">
+                        <i class="fas fa-brain"></i> AI Match Score: ${rec.score.toFixed(0)}/100
+                    </div>
+                    <div class="farmer-actions">
+                        <button class="btn btn-primary" data-lang-key="view-profile" onclick="openProfileModal(${farmer.id})">View Profile</button>
+                        <button class="btn btn-secondary" data-lang-key="chat" onclick="openChatModal(${farmer.id})">Chat</button>
+                        <button class="btn btn-ai" onclick="showAIAnalysis(${farmer.id})">
+                            <i class="fas fa-robot"></i> AI Analysis
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            farmersGrid.appendChild(card);
+        });
+    }
+
+    // Modal functionality
+    function openChatModal(farmerId) {
+        currentFarmerId = farmerId;
+        const modal = document.querySelector('.chat-modal');
+        if (modal) {
+            // Reset chat messages
+            const messagesContainer = document.querySelector('.chat-messages');
+            if (messagesContainer) {
+                messagesContainer.innerHTML = `
+                    <div class="message farmer">
+                        <div class="message-content">${languages[currentLanguage]['farmer-welcome']}</div>
+                    </div>
+                    <div class="message buyer">
+                        <div class="message-content">${languages[currentLanguage]['buyer-inquiry']}</div>
+                    </div>
+                    <div class="message farmer">
+                        <div class="message-content">${languages[currentLanguage]['farmer-response']}</div>
+                    </div>
+                `;
+            }
+            
+            // Update input placeholder
+            const chatInput = document.querySelector('.chat-input input');
+            if (chatInput) {
+                chatInput.placeholder = languages[currentLanguage]['type-message'];
+            }
+            
+            modal.classList.add('show');
+        }
+    }
+
+    function closeChatModal() {
+        const modal = document.querySelector('.chat-modal');
+        if (modal) modal.classList.remove('show');
+        currentFarmerId = null;
+    }
+
+    function openProfileModal(farmerId) {
+        currentFarmerId = farmerId;
+        
+        const farmers = {
+            1: {
+                name: "Rajesh Kumar",
+                location: "Thrissur, Kerala",
+                contact: "+91 98765 43210",
+                address: "Farmland, PO: Vadakkanchery, Thrissur, Kerala - 680623",
+                sales: "1,250+ transactions",
+                rating: 4.5,
+                crops: ["Rice", "Coconut", "Banana", "Tapioca", "Vegetables"]
+            },
+            2: {
+                name: "Suresh Reddy",
+                location: "Guntur, Andhra Pradesh",
+                contact: "+91 98765 43211",
+                address: "Reddy Farms, Guntur, Andhra Pradesh - 522001",
+                sales: "980+ transactions",
+                rating: 4.2,
+                crops: ["Chili", "Tomato", "Cotton", "Turmeric"]
+            },
+            3: {
+                name: "Priya Nair",
+                location: "Palakkad, Kerala",
+                contact: "+91 98765 43212",
+                address: "Nair Plantations, Palakkad, Kerala - 678001",
+                sales: "1,550+ transactions",
+                rating: 4.7,
+                crops: ["Mango", "Cashew", "Black Pepper", "Cardamom"]
+            },
+            4: {
+                name: "Anil Patel",
+                location: "Ahmedabad, Gujarat",
+                contact: "+91 98765 43213",
+                address: "Patel Farms, Ahmedabad, Gujarat - 380001",
+                sales: "2,100+ transactions",
+                rating: 4.0,
+                crops: ["Wheat", "Cotton", "Groundnut", "Sugarcane"]
+            },
+            5: {
+                name: "Sunita Singh",
+                location: "New Delhi",
+                contact: "+91 98765 43214",
+                address: "Singh Orchards, New Delhi - 110001",
+                sales: "1,800+ transactions",
+                rating: 4.8,
+                crops: ["Vegetables", "Fruits", "Flowers", "Herbs"]
+            }
+        };
+        
+        const farmer = farmers[farmerId];
+        const modal = document.querySelector('.profile-modal');
+        
+        if (farmer && modal) {
+            // Update profile data
+            const profileName = document.getElementById('profile-name');
+            const profileLocation = document.getElementById('profile-location');
+            const profileContact = document.getElementById('profile-contact');
+            const profileAddress = document.getElementById('profile-address');
+            const profileSales = document.getElementById('profile-sales');
+            const cropsContainer = document.getElementById('profile-crops');
+            const ratingContainer = document.getElementById('profile-rating');
+            
+            if (profileName) profileName.textContent = farmer.name;
+            if (profileLocation) profileLocation.textContent = farmer.location;
+            if (profileContact) profileContact.textContent = farmer.contact;
+            if (profileAddress) profileAddress.textContent = farmer.address;
+            if (profileSales) profileSales.textContent = farmer.sales;
+            
+            if (ratingContainer) {
+                ratingContainer.innerHTML = `
+                    <span class="rating-stars">
+                        ${'<i class="fas fa-star"></i>'.repeat(Math.floor(farmer.rating))}
+                        ${farmer.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt"></i>' : ''}
+                        ${'<i class="far fa-star"></i>'.repeat(5 - Math.ceil(farmer.rating))}
+                    </span>
+                    <span>(${farmer.rating}/5)</span>
+                `;
+            }
+            
+            if (cropsContainer) {
+                cropsContainer.innerHTML = '';
+                farmer.crops.forEach(crop => {
+                    const tag = document.createElement('span');
+                    tag.className = 'crop-tag';
+                    tag.textContent = crop;
+                    cropsContainer.appendChild(tag);
+                });
+            }
+            
+            modal.classList.add('show');
+        }
+    }
+
+    function closeProfileModal() {
+        const modal = document.querySelector('.profile-modal');
+        if (modal) modal.classList.remove('show');
+        currentFarmerId = null;
+    }
+
+    function showAIAnalysis(farmerId) {
+        const farmer = aiSystem.farmerGraph.nodes.get(farmerId);
+        if (!farmer) return;
+        
+        const insights = aiSystem.getMarketInsights(farmer.crops[0]);
+        if (!insights) return;
+        
+        alert(`AI Analysis for ${farmer.name}:\n\n` +
+              `Primary Crop: ${farmer.crops[0].charAt(0).toUpperCase() + farmer.crops[0].slice(1)}\n` +
+              `Current Market Price: ₹${insights.currentPrice}/kg\n` +
+              `Price Trend: ${insights.priceTrend}\n` +
+              `Demand Level: ${insights.demandLevel}\n` +
+              `Best Time to Buy: ${insights.bestBuyTime}\n` +
+              `Shelf Life: ${insights.shelfLife} days`);
+    }
+
+    function scheduleVisit() {
+        const crop = document.getElementById('visit-crop');
+        const quantity = document.getElementById('visit-quantity');
+        const date = document.getElementById('visit-date');
+        const time = document.getElementById('visit-time');
+        
+        if (crop && quantity && date && time) {
+            if (crop.value && quantity.value && date.value && time.value) {
+                showToast(`Visit scheduled for ${date.value} at ${time.value} to view ${quantity.value}kg of ${crop.value}`);
+                closeProfileModal();
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+    }
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeChatModal();
+            closeProfileModal();
+        }
+    });
+
+    // Map initialization
+    function initMap() {
+        const mapElement = document.getElementById('farmers-map');
+        if (!mapElement) return;
+
+        try {
+            const map = L.map('farmers-map').setView([10.8505, 76.2711], 5);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add farmer markers
+            for (const [id, farmer] of aiSystem.farmerGraph.nodes) {
+                const marker = L.marker(farmer.location).addTo(map);
+                marker.bindPopup(`
+                    <b>${farmer.name}</b><br>
+                    Crops: ${farmer.crops.join(', ')}<br>
+                    AI Rating: ${farmer.rating}/5<br>
+                    <button onclick="openProfileModal(${farmer.id})" style="margin-top: 5px; padding: 5px 10px; cursor: pointer;">View Profile</button>
+                `);
+            }
+        } catch (error) {
+            console.error('Error initializing map:', error);
+        }
+    }
+
+    function initCharts() {
+        // Price Trends Chart
+        const priceCtx = document.getElementById('price-chart').getContext('2d');
+        new Chart(priceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Rice (₹/kg)',
+                    data: [42, 44, 45, 43, 46, 48],
+                    borderColor: '#4caf50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }, {
+                    label: 'Tomato (₹/kg)',
+                    data: [35, 38, 42, 45, 40, 36],
+                    borderColor: '#ff9800',
+                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Price Trends (Last 6 Months)'
+                    }
+                }
+            }
+        });
+
+        // Demand Forecast Chart
+        const demandCtx = document.getElementById('demand-chart').getContext('2d');
+        new Chart(demandCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Rice', 'Wheat', 'Tomato', 'Potato', 'Onion'],
+                datasets: [{
+                    label: 'Current Demand',
+                    data: [85, 70, 95, 80, 90],
+                    backgroundColor: '#2196f3'
+                }, {
+                    label: 'Next Month Forecast',
+                    data: [80, 75, 90, 85, 85],
+                    backgroundColor: '#ff9800'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Demand Forecast'
+                    }
+                }
+            }
+        });
+
+        // Crop Distribution Chart
+        const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
+        new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cereals', 'Vegetables', 'Fruits', 'Pulses', 'Others'],
+                datasets: [{
+                    data: [35, 25, 20, 15, 5],
+                    backgroundColor: [
+                        '#4caf50',
+                        '#ff9800',
+                        '#2196f3',
+                        '#9c27b0',
+                        '#607d8b'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crop Distribution in Your Region'
+                    }
+                }
+            }
+        });
+    }
+
+    function sendMessage() {
+        const input = document.querySelector('.chat-input input');
+        if (!input) return;
+
+        const message = input.value.trim();
+        
+        if (message) {
+            const messagesContainer = document.querySelector('.chat-messages');
+            if (messagesContainer) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message buyer';
+                messageDiv.innerHTML = `<div class="message-content">${message}</div>`;
+                messagesContainer.appendChild(messageDiv);
+                input.value = '';
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Simulate farmer reply after 1 second
+                setTimeout(() => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'message farmer';
+                    replyDiv.innerHTML = `<div class="message-content">${languages[currentLanguage]['farmer-response'] || 'Thank you for your message. I will get back to you shortly.'}</div>`;
+                    messagesContainer.appendChild(replyDiv);
+                    
+                    // Sometimes add AI suggestion
+                    if (Math.random() > 0.5) {
+                        setTimeout(() => {
+                            const aiDiv = document.createElement('div');
+                            aiDiv.className = 'message ai';
+                            aiDiv.innerHTML = `<div class="message-content"><i class="fas fa-robot"></i> AI Suggestion: Consider asking about bulk discounts for orders over 100kg.</div>`;
+                            messagesContainer.appendChild(aiDiv);
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }, 500);
+                    }
+                    
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 1000);
+            }
+        }
+    }
+
+    function performSearch() {
+        const cropInput = document.getElementById('crop-search');
+        const locationInput = document.getElementById('location');
+        const quantityInput = document.getElementById('quantity');
+        
+        if (cropInput && locationInput && quantityInput) {
+            const crop = cropInput.value.toLowerCase();
+            const location = locationInput.value;
+            const quantity = parseInt(quantityInput.value) || 1;
+            
+            // Default location for demo
+            const userLocation = [10.8505, 76.2711]; // Kerala coordinates
+            
+            if (crop) {
+                // Get AI recommendations
+                const recommendations = aiSystem.getRecommendations(crop, userLocation, quantity);
+                
+                // Display farmers
+                displayFarmers(recommendations);
+                
+                // Show AI recommendations
+                showAIRecommendations(crop, userLocation, quantity);
+                
+                // Update map to focus on recommendations
+                updateMap(recommendations);
+            }
+        }
+    }
+
+    function updateMap(recommendations) {
+        const mapElement = document.getElementById('farmers-map');
+        if (!mapElement || !recommendations.length) return;
+
+        try {
+            // Remove existing map
+            mapElement.innerHTML = '';
+            
+            // Create new map centered on first recommendation
+            const firstFarmer = recommendations[0].farmer;
+            const map = L.map('farmers-map').setView(firstFarmer.location, 8);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add markers for recommended farmers
+            recommendations.forEach(rec => {
+                const farmer = rec.farmer;
+                const marker = L.marker(farmer.location).addTo(map);
+                
+                // Different color for top recommendation
+                if (rec === recommendations[0]) {
+                    marker._icon.classList.add('top-recommendation');
+                }
+                
+                marker.bindPopup(`
+                    <b>${farmer.name}</b><br>
+                    AI Score: ${rec.score.toFixed(0)}/100<br>
+                    Distance: ${rec.distance.toFixed(1)} km<br>
+                    Estimated Price: ₹${rec.estimatedPrice}/kg<br>
+                    <button onclick="openProfileModal(${farmer.id})" style="margin-top: 5px; padding: 5px 10px; cursor: pointer;">View Profile</button>
+                `);
+            });
+        } catch (error) {
+            console.error('Error updating map:', error);
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        
+        if (toast && toastMessage) {
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    }
+
+    // Error handling for global functions
+    window.openChatModal = openChatModal;
+    window.openProfileModal = openProfileModal;
+    window.closeChatModal = closeChatModal;
+    window.closeProfileModal = closeProfileModal;
+    window.scheduleVisit = scheduleVisit;
+    window.sendMessage = sendMessage;
+    window.showAIAnalysis = showAIAnalysis;
+</script>
+</body>
+</html>

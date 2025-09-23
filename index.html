@@ -656,47 +656,49 @@
     </header>
 
     <!-- Dashboard Stats -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
-      <div class="dashboard-card flex items-center gap-4">
-        <div class="p-3 rounded-xl bg-emerald-100 text-emerald-700">
-          <i class="fas fa-leaf text-xl"></i>
-        </div>
-        <div>
-          <div class="text-sm text-slate-500" id="detectionLabel">Detections Today</div>
-          <div class="text-2xl font-bold">12</div>
-        </div>
-      </div>
+   
       
-      <div class="dashboard-card flex items-center gap-4">
-        <div class="p-3 rounded-xl bg-amber-100 text-amber-700">
-          <i class="fas fa-exclamation-triangle text-xl"></i>
-        </div>
-        <div>
-          <div class="text-sm text-slate-500" id="alertsLabel">Disease Alerts</div>
-          <div class="text-2xl font-bold">3</div>
-        </div>
-      </div>
-      
-      <div class="dashboard-card flex items-center gap-4">
-        <div class="p-3 rounded-xl bg-blue-100 text-blue-700">
-          <i class="fas fa-cloud-sun text-xl"></i>
-        </div>
-        <div>
-          <div class="text-sm text-slate-500" id="weatherLabel">Weather Index</div>
-          <div class="text-2xl font-bold">72%</div>
-        </div>
-      </div>
-      
-      <div class="dashboard-card flex items-center gap-4">
-        <div class="p-3 rounded-xl bg-purple-100 text-purple-700">
-          <i class="fas fa-rupee-sign text-xl"></i>
-        </div>
-        <div>
-          <div class="text-sm text-slate-500" id="marketLabel">Market Trends</div>
-          <div class="text-2xl font-bold">+5.2%</div>
-        </div>
-      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+  <div class="dashboard-card flex items-center gap-4 p-4 bg-white rounded-xl shadow">
+    <div class="p-3 rounded-xl bg-emerald-100 text-emerald-700">
+      <i class="fas fa-leaf text-xl"></i>
     </div>
+    <div>
+      <div class="text-sm text-slate-500" id="detectionLabel">Detections Today</div>
+      <div class="text-2xl font-bold">12</div>
+    </div>
+  </div>
+
+  <div class="dashboard-card flex items-center gap-4 p-4 bg-white rounded-xl shadow">
+    <div class="p-3 rounded-xl bg-amber-100 text-amber-700">
+      <i class="fas fa-exclamation-triangle text-xl"></i>
+    </div>
+    <div>
+      <div class="text-sm text-slate-500" id="alertsLabel">Disease Alerts</div>
+      <div class="text-2xl font-bold">3</div>
+    </div>
+  </div>
+
+  <div class="dashboard-card flex items-center gap-4 p-4 bg-white rounded-xl shadow">
+    <div class="p-3 rounded-xl bg-blue-100 text-blue-700">
+      <i class="fas fa-cloud-sun text-xl"></i>
+    </div>
+    <div>
+      <div class="text-sm text-slate-500" id="weatherLabel">Weather Index</div>
+      <div class="text-2xl font-bold">72%</div>
+    </div>
+  </div>
+
+  <div class="dashboard-card flex items-center gap-4 p-4 bg-white rounded-xl shadow">
+    <div class="p-3 rounded-xl bg-purple-100 text-purple-700">
+      <i class="fas fa-rupee-sign text-xl"></i>
+    </div>
+    <div>
+      <div class="text-sm text-slate-500" id="marketLabel">Market Trends</div>
+      <div class="text-2xl font-bold">+5.2%</div>
+    </div>
+  </div>
+</div>
 
     <!-- Layout -->
     <div class="grid grid-cols-3 gap-6">
@@ -2600,4 +2602,5 @@
   </script>
 </body>
 </html>
+
 

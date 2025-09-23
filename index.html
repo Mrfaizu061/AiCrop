@@ -206,6 +206,84 @@
     }
     
     /* Chatbot Styles */
+
+    /* Style for + icon */
+/* + Icon Style */
+
+/* Chat container */
+.chat-container {
+  width: 350px;
+  height: 500px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-family: sans-serif;
+  z-index: 1000;
+}
+
+/* Simple thumbnail for chat images */
+.message img {
+  max-width: 150px;   /* keeps image small */
+  max-height: 150px;  /* ensures height doesn't blow up */
+  width: auto;        /* maintain aspect ratio */
+  height: auto;       /* maintain aspect ratio */
+  display: block;
+}
+
+
+
+
+/* Input area */
+.chat-input-container {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  align-items: center;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+/* Upload icon (+) */
+.upload-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  position: relative;
+}
+
+.upload-icon input {
+  display: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
     .chat-container {
       position: fixed;
       bottom: 90px;
@@ -555,7 +633,7 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <a href="Market.html" data-lang-key="contact">MarketPlace</a>
+        <a href="Market.html" data-lang-key="contact" style="font-weight: bold;color: rgb(0, 0, 148); font-size: 18px;border:2px solid rgb(154, 140, 140);">MarketPlace</a>
         <div id="onlineBadge" class="flex items-center gap-2 px-3 py-1 rounded-full border bg-white/70 shadow-sm">
               
           <span id="onlineDot" class="h-3 w-3 rounded-full bg-emerald-500 block"></span>
@@ -964,11 +1042,11 @@
     </div>
 
     <!-- Floating Chat Assistant -->
-    <div class="chat-container hidden" id="chatbotContainer">
+    <!-- <div class="chat-container hidden" id="chatbotContainer">
       <div class="chat-header">
         <div>
-          <div class="font-semibold">Chat With FarmGuru </div>
-          <div class="text-xs opacity-80">Ask me about Farming</div>
+          <div class="font-semibold">FarmGuru Chat</div>
+          <div class="text-xs opacity-80">Ask me about farming</div>
         </div>
         <div class="flex gap-2">
           <button class="lang-btn active" data-lang="en">EN</button>
@@ -984,6 +1062,10 @@
       </div>
       <div class="chat-input-container">
         <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+        <label id="chatUploadBtn" class="upload-icon">
+    <i class="fas fa-plus"></i>
+    <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx" multiple style="display:none;">
+  </label>
         <button class="voice-btn" id="voiceBtn">
           <i class="fas fa-microphone"></i>
         </button>
@@ -992,10 +1074,63 @@
         </button>
       </div>
     </div>
+    <div class="chat-upload-preview" id="chatImagePreview"></div>
+<div class="chat-upload-progress">
+  <div class="progress-bar" id="chatUploadProgress"></div>
+</div>
 
     <div class="chat-toggle" id="chatToggle">
       <i class="fas fa-comments"></i>
+    </div>  -->
+
+
+    <div class="chat-container" id="chatbotContainer">
+  <div class="chat-header">
+    <div>
+      <div class="font-semibold">FarmGuru Chat</div>
+      <div class="text-xs opacity-80">Ask me about farming</div>
     </div>
+    <div class="flex gap-2">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="hi">HI</button>
+      <button class="lang-btn" data-lang="ml">ML</button>
+      <button class="lang-btn" data-lang="te">TE</button>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot-message">
+      Hello! I'm your AI farming assistant. How can I help you today?
+    </div>
+  </div>
+
+  <div class="chat-input-container">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+
+    <!-- + icon for image/file upload -->
+    <label id="chatUploadBtn" class="upload-icon" title="Upload Image/File">
+      <i class="fas fa-plus"></i>
+      <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx" multiple>
+    </label>
+
+    <button class="voice-btn" id="voiceBtn">
+      <i class="fas fa-microphone"></i>
+    </button>
+    <button class="btn-primary" id="sendBtn">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+
+  <!-- Preview thumbnails -->
+  <div class="chat-upload-preview" id="chatImagePreview"></div>
+</div>
+
+<div class="chat-toggle" id="chatToggle">
+  <i class="fas fa-comments"></i>
+</div>
+
+
+
 
     <footer class="text-center mt-8 text-xs text-slate-500 py-4 border-t">
       FarmGuru AI • Hackathon Prototype • Built for demonstration purposes
@@ -1930,6 +2065,13 @@
       marketData.history = Array.from({length: 7}, (_, i) => 
         basePrice + Math.sin(i * 0.8) * 200 + Math.random() * 100
       );
+      btnClearHistory.addEventListener("click", () => {
+    // Remove all child elements
+    historyList.innerHTML = "";
+
+    // Optional: show a notification
+    showNotification("History cleared", "All history entries have been removed.", "info");
+});
       
       // Update market update time
       marketUpdateTime.textContent = `Today ${new Date().getHours()}:${new Date().getMinutes().toString().padStart(2, '0')} AM`;
@@ -2263,6 +2405,12 @@
       }, 1500);
     }
 
+    let get=document.getElementById('btnSaveImage');
+
+    get.addEventListener('click',function(){
+      alert("The image have been saved");
+    })
+
     function shareResults() {
       if (navigator.share) {
         navigator.share({
@@ -2444,7 +2592,11 @@
     // Initialize the application when DOM is loaded
     document.addEventListener('DOMContentLoaded', init);
   })();
+
+
+  // References
+
+
   </script>
 </body>
 </html>
-
